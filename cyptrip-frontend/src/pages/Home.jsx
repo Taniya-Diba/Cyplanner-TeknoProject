@@ -2,6 +2,10 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import '../styles/pages/Home.css';
 import Layout from '../components/Layout';
+import IMG_Salamis from "../assets/images/IMG/Salamis Ruins, Northern Cyprus.jpg";
+import IMG_Kyrenia from "../assets/images/IMG/Kyrenia Castle.jpg";
+import IMG_Varosha from "../assets/images/IMG/Varosha and Toyota.jpg";
+import IMG_Bellapais from "../assets/images/IMG/Bellapais Abbey.jpg";
 
 function Home() {
   return (
@@ -24,22 +28,22 @@ function Home() {
         <h2>Recommended for you</h2>
         <div className="recommendation-grid">
           <div className="recommendation-card">
-            <img src="#" alt="Salamis Ruins" className="card-image" />
+            <img src={IMG_Salamis} alt="Salamis Ruins" className="card-image" />
             <h3 className="card-title">Salamis Ruins</h3>
             <button className="card-arrow">→</button>
           </div>
           <div className="recommendation-card">
-            <img src="#" alt="Kyrenia Castle" className="card-image" />
+            <img src={IMG_Kyrenia} alt="Kyrenia Castle" className="card-image" />
             <h3 className="card-title">Kyrenia Castle</h3>
             <button className="card-arrow">→</button>
           </div>
           <div className="recommendation-card">
-            <img src="#" alt="Varosha" className="card-image" />
+            <img src={IMG_Varosha } alt="Varosha" className="card-image" />
             <h3 className="card-title">Varosha</h3>
             <button className="card-arrow">→</button>
           </div>
           <div className="recommendation-card">
-            <img src="#" alt="Bellapais Abbey" className="card-image" />
+            <img src={IMG_Bellapais} alt="Bellapais Abbey" className="card-image" />
             <h3 className="card-title">Bellapais Abbey</h3>
             <button className="card-arrow">→</button>
           </div>
