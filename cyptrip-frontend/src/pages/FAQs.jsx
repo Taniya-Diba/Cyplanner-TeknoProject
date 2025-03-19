@@ -1,7 +1,8 @@
 import React from 'react';
-
+import Layout from '../components/Layout.jsx';
 function FAQs() {
   return (
+    <Layout>
     <div className="page faqs-page">
       <h1>Frequently Asked Questions</h1>
       <div className="faq-list">
@@ -19,6 +20,7 @@ function FAQs() {
         </div>
       </div>
     </div>
+    </Layout>
   );
 }
 
