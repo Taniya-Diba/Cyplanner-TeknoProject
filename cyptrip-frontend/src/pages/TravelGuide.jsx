@@ -216,7 +216,7 @@ const destinations = [
     author: {
       name: "Sophie N.",
       description: "Travel Photographer",
-      image: "/src/assets/images/authors/sophie.jpg"
+      image: IMG_FEPER
     },
     description: "Gothic monastery ruins with stunning mountain and sea views, built in the 13th century.",
     milestones: [
