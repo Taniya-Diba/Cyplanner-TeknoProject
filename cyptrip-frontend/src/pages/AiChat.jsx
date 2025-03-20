@@ -1,6 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import Layout from '../components/Layout.jsx';
 import AiLOGO from '../assets/images/IMG/aichatbotLOGO.png';
 
 // Import shared data and components
@@ -20,21 +19,21 @@ import TravelLogistics from '../components/chat/TravelLogistics';
 import { callGeminiAPI, processAIResponse } from '../utils/apiHelpers';
 
 // Import extended destination data
-import DestinationData from '../data/DestinationData';
-
-// Destructure the imported data for easier access
-const {
+import { 
   kyreniaLogistics,
   kyreniaMilestones,
   salamisMilestones,
   bellapaisMilestones,
   varoshaMilestones
-} = DestinationData;
+} from '../data/DestinationData';
 
 /**
  * AiChat component - Main chatbot interface with Cyprus travel assistance
  */
 const AiChat = () => {
+  // Create ref for auto-scrolling messages
+  const messagesEndRef = useRef(null);
+
   // State declarations with meaningful default values
   const [messages, setMessages] = useState([]);
   const [interests, setInterests] = useState([
@@ -50,12 +49,21 @@ const AiChat = () => {
     group: 'Group'
   });
   
+  // Auto-scroll to bottom when messages change
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+  
   // Initial greeting message on component mount
   useEffect(() => {
     const initialGreeting = {
       id: 'greeting-1',
       sender: 'ai',
-      text: "Hi! I'm your Cyprus Travel Assistant. What kind of experience are you looking for?",
+      text: "Hi Emad! I'm your North Cyprus Travel Assistant. What kind of experience are you looking for?",
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
     setMessages([initialGreeting]);
@@ -211,11 +219,61 @@ const AiChat = () => {
       </div>
     </div>
   );
+
+  // Function to analyze response text and generate appropriate timeline components
+  const generateTimelineComponents = (responseText) => {
+    const components = [];
+    
+    // Check if response mentions specific destinations
+    if (responseText.includes('Kyrenia Castle') || responseText.includes('Kyrenia Harbor')) {
+      components.push({
+        type: 'milestones',
+        title: 'Kyrenia Castle & Harbor Highlights',
+        data: kyreniaMilestones,
+        destinationId: 'kyrenia'
+      });
+      
+      components.push({
+        type: 'logistics',
+        title: 'Kyrenia Travel Logistics',
+        data: kyreniaLogistics,
+        destinationId: 'kyrenia'
+      });
+    }
+    
+    if (responseText.includes('Salamis Ruins') || responseText.includes('Salamis')) {
+      components.push({
+        type: 'milestones',
+        title: 'Salamis Ruins Experience',
+        data: salamisMilestones,
+        destinationId: 'salamis'
+      });
+    }
+    
+    if (responseText.includes('Bellapais Abbey') || responseText.includes('Bellapais')) {
+      components.push({
+        type: 'milestones',
+        title: 'Bellapais Abbey Visit',
+        data: bellapaisMilestones,
+        destinationId: 'bellapais'
+      });
+    }
+    
+    if (responseText.includes('Varosha') || responseText.includes('Ghost Town')) {
+      components.push({
+        type: 'milestones',
+        title: 'Varosha Ghost Town Tour',
+        data: varoshaMilestones,
+        destinationId: 'varosha'
+      });
+    }
+    
+    return components;
+  };
   
   return (
-    <Layout>
-      <div className="flex h-screen bg-gradient-to-br from-slate-900 to-slate-800 relative overflow-hidden">
-        {/* Wave Background */}
+    <div className="flex h-screen bg-gradient-to-br from-slate-900 to-slate-800 relative overflow-hidden">
+      {/* Wave Background */}
         <div className="absolute w-full h-full opacity-10 pointer-events-none z-0">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" className="absolute bottom-0 w-full">
             <path fill="#0ea5e9" fillOpacity="1" d="M0,160L48,144C96,128,192,96,288,106.7C384,117,480,171,576,186.7C672,203,768,181,864,154.7C960,128,1056,96,1152,90.7C1248,85,1344,107,1392,117.3L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
@@ -223,7 +281,20 @@ const AiChat = () => {
         </div>
 
         {/* Sidebar */}
-        <div className="w-80 bg-slate-900 bg-opacity-70 backdrop-blur-sm p-6 flex flex-col z-10 shadow-xl">
+        <div className="w-80 bg-slate-900 bg-opacity-70 backdrop-blur-sm p-6 flex flex-col z-10 shadow-xl overflow-y-auto">
+          {/* Back to Home Button */}
+          <div className="mb-4">
+            <Link 
+              to="/" 
+              className="flex items-center text-sky-400 hover:text-sky-300 transition-colors"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
+              </svg>
+              Back to Home
+            </Link>
+          </div>
+          
           <h2 className="text-2xl font-semibold text-white mb-6">Plan your perfect trip</h2>
           
           {/* Filters */}
@@ -244,19 +315,6 @@ const AiChat = () => {
             onRemoveInterest={removeInterest}
             onClearAll={clearAllInterests}
           />
-          
-          {/* Explore Map Button */}
-          <div className="mt-6">
-            <Link 
-              to="/explore" 
-              className="flex items-center justify-center w-full bg-sky-600 hover:bg-sky-500 text-white py-2 px-4 rounded-full transition-colors"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
-              </svg>
-              Explore Map
-            </Link>
-          </div>
 
           {/* Quick Access to Events */}
           <div className="mt-6">
@@ -277,9 +335,15 @@ const AiChat = () => {
             </div>
           </div>
           
-          {/* Powered by section */}
-          <div className="mt-auto pt-6">
-            <div className="w-full flex items-center justify-center space-x-2 bg-sky-800 bg-opacity-40 text-white rounded-full py-2">
+          {/* Spacer before powered by section */}
+          <div className="py-6"></div>
+        </div>
+        
+        {/* Main Chat Area */}
+        <div className="flex-1 flex flex-col p-6 overflow-hidden z-10 bg-slate-800 bg-opacity-30 backdrop-blur-sm">
+          {/* Powered by Gemini - positioned at top right */}
+          <div className="absolute top-4 right-4 z-20">
+            <div className="flex items-center space-x-2 bg-sky-800 text-white rounded-full py-2 px-4 shadow-lg">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M12 18.5a6.5 6.5 0 1 0 0-13 6.5 6.5 0 0 0 0 13Z"></path>
                 <path d="M12 22v-3.5"></path>
@@ -294,44 +358,48 @@ const AiChat = () => {
               <span>Powered by Gemini 1.5</span>
             </div>
           </div>
-        </div>
-        
-        {/* Main Chat Area */}
-        <div className="flex-1 flex flex-col p-6 overflow-hidden z-10 bg-slate-800 bg-opacity-30 backdrop-blur-sm">
+          
           {/* Messages */}
-          <div className="relative flex-1 overflow-y-auto mb-4 space-y-6">
-            {messages.map(message => (
-              <ChatMessage 
-                key={message.id} 
-                message={message} 
-                aiLogo={AiLOGO} 
-              />
-            ))}
+          <div className="relative flex-1 overflow-y-auto mb-4 space-y-6 flex flex-col items-center">
+            <div className="w-full max-w-3xl">
+              {messages.map(message => (
+                <div key={message.id} className="mb-6">
+                  <ChatMessage 
+                    message={message} 
+                    aiLogo={AiLOGO} 
+                  />
+                </div>
+              ))}
+              
+              {/* Loading indicator */}
+              {isLoading && (
+                <div className="mb-6">
+                  <LoadingIndicator 
+                    type="chat" 
+                    aiLogo={AiLOGO} 
+                  />
+                </div>
+              )}
+            </div>
             
-            {/* Loading indicator */}
-            {isLoading && (
-              <LoadingIndicator 
-                type="chat" 
-                aiLogo={AiLOGO} 
-              />
-            )}
+            {/* Invisible element for auto-scrolling */}
+            <div ref={messagesEndRef} />
           </div>
 
-          {/* Wave divider */}
-          <div className="relative h-12 mb-4 overflow-hidden">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" className="absolute top-0 w-full opacity-20">
-              <path fill="#0ea5e9" fillOpacity="1" d="M0,160L48,176C96,192,192,224,288,213.3C384,203,480,149,576,133.3C672,117,768,139,864,165.3C960,192,1056,224,1152,229.3C1248,235,1344,213,1392,202.7L1440,192L1440,0L1392,0C1344,0,1248,0,1152,0C1056,0,960,0,864,0C768,0,672,0,576,0C480,0,384,0,288,0C192,0,96,0,48,0L0,0Z"></path>
-            </svg>
-          </div>
+          {/* Spacer instead of wave divider */}
+          <div className="h-4 mb-4"></div>
           
           {/* Message Input */}
-          <ChatInput 
-            onSendMessage={handleSendMessage}
-            isLoading={isLoading}
-          />
+          <div className="flex justify-center w-full">
+            <div className="w-full max-w-3xl">
+              <ChatInput 
+                onSendMessage={handleSendMessage}
+                isLoading={isLoading}
+              />
+            </div>
+          </div>
         </div>
       </div>
-    </Layout>
   );
 };
 
