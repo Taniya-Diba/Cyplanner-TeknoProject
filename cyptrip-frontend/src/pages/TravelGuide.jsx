@@ -174,7 +174,7 @@ const destinations = [
     author: {
       name: "Alex T.",
       description: "Historian",
-      image: "/src/assets/images/authors/alex.jpg"
+      image: IMG_PER
     },
     description: "Ancient city ruins dating back to the 11th century BC, featuring impressive Roman architecture.",
     milestones: [
