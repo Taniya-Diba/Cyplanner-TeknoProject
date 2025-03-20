@@ -155,7 +155,7 @@ const Deals = () => {
       priceCategory: "low"
     },
     {
-      name: "Historical Tours", 
+      name: IMG_HIST, 
       image: "/api/placeholder/400/250", 
       count: "+150 Tours",
       description: "Journey through time with our historical tours covering ancient ruins, medieval castles, and archaeological sites with expert historians.",
