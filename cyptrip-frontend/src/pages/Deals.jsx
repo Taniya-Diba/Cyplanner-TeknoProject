@@ -147,15 +147,15 @@ const Deals = () => {
       priceCategory: "medium"
     },
     {
-      name: IMG_BOAT, 
-      image: "/api/placeholder/400/250", 
+      name: "Beach Tours", 
+      image: IMG_BOAT, 
       count: "+25 Tours",
       description: "Visit the most beautiful beaches in Cyprus. Snorkeling, swimming, and sunbathing opportunities with transportation included.",
       location: "Coastal Areas",
       priceCategory: "low"
     },
     {
-      name: "Beach Tours", 
+      name: "Historical Tours", 
       image: IMG_HIST, 
       count: "+150 Tours",
       description: "Journey through time with our historical tours covering ancient ruins, medieval castles, and archaeological sites with expert historians.",
