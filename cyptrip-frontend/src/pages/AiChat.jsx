@@ -20,13 +20,16 @@ import TravelLogistics from '../components/chat/TravelLogistics';
 import { callGeminiAPI, processAIResponse } from '../utils/apiHelpers';
 
 // Import extended destination data
-import {
+import DestinationData from '../data/DestinationData';
+
+// Destructure the imported data for easier access
+const {
   kyreniaLogistics,
   kyreniaMilestones,
   salamisMilestones,
   bellapaisMilestones,
   varoshaMilestones
-} from '../data/DestinationData';
+} = DestinationData;
 
 /**
  * AiChat component - Main chatbot interface with Cyprus travel assistance
