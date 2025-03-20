@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Layout from '../components/Layout';
 import IMG_PER from '../assets/images/IMG/person.png'
+import IMG_FEPER from '../assets/images/IMG/Feperson.png'
 import IMG_Kyrena from '../assets/images/IMG/kyrenia.jpg'
 import IMG_Cruise from '../assets/images/IMG/cruise.jpg'
 import IMG_Salamis from '../assets/images/IMG/Salamis Ruins, Northern Cyprus.jpg'
