@@ -163,7 +163,7 @@ const destinations = [
   {
     id: 2,
     title: "Salamis Ruins",
-    image: "/src/assets/images/destinations/salamis-ruins.jpg",
+    image: IMG_Salamis,
     rating: 4.6,
     duration: "1 day",
     travellers: "2 travellers",
