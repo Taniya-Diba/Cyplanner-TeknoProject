@@ -18,7 +18,8 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<SignUp />} />
+        <Route path="/home" element={<Home />} />
         <Route path="/ai-chat" element={<AiChat />} />
         <Route path="/deals" element={<Deals />} />
         <Route path="/explore" element={<Explore />} />
