@@ -1,8 +1,21 @@
 import React, { useState } from 'react';
 import Layout from '../components/Layout';
-import { FaAward, FaMapMarkerAlt, FaCar, FaRegClock } from 'react-icons/fa';
+import { 
+  FaAward, 
+  FaMapMarkerAlt, 
+  FaCar, 
+  FaRegClock, 
+  FaPlane, 
+  FaHotel, 
+  FaCalendarAlt, 
+  FaUtensils, 
+  FaLandmark, 
+  FaInfoCircle, 
+  FaMapMarkedAlt,
+  FaTicketAlt
+} from 'react-icons/fa';
 
-// Sample data for destinations
+// Sample data for destinations (keeping original data)
 const destinations = [
   {
     id: 1,
@@ -18,6 +31,7 @@ const destinations = [
       image: "/src/assets/images/authors/maria.jpg"
     },
     description: "A magnificent 16th-century castle overlooking the picturesque harbor of Kyrenia.",
+    extendedDescription: "Kyrenia Castle is a stunning historical site located at the eastern end of the old harbor in Kyrenia, Northern Cyprus. Built initially by the Byzantines to guard the city against Arab raids, the castle was later expanded by the Lusignans and Venetians. The current massive structure dates primarily from the Venetian period. Inside the castle, visitors can explore ancient dungeons, a shipwreck museum housing a well-preserved 4th-century Greek merchant vessel, and enjoy panoramic views of the Mediterranean from its battlements. The adjacent Kyrenia Harbor is lined with charming cafes and restaurants, offering a perfect blend of history and relaxation.",
     milestones: [
       {
         day: "Day 1",
@@ -41,8 +55,105 @@ const destinations = [
         image: "/src/assets/images/destinations/kyrenia-harbor.jpg",
         location: "Kyrenia Harbor, Cyprus"
       }
-    ]
+    ],
+    // New travel logistics data for Kyrenia
+    travelLogistics: {
+      flights: [
+        {
+          date: "Mar 20, 2025",
+          time: "10:30 AM - 1:45 PM",
+          flight: "TK1784",
+          from: "London Heathrow (LHR)",
+          to: "Ercan International Airport (ECN)",
+          airline: "Turkish Airlines",
+          status: "Confirmed"
+        },
+        {
+          date: "Mar 24, 2025",
+          time: "3:15 PM - 6:30 PM",
+          flight: "TK1785",
+          from: "Ercan International Airport (ECN)",
+          to: "London Heathrow (LHR)",
+          airline: "Turkish Airlines",
+          status: "Confirmed"
+        }
+      ],
+      hotels: [
+        {
+          name: "Kyrenia Harbor View Hotel",
+          checkIn: "Mar 20, 2025",
+          checkOut: "Mar 24, 2025",
+          roomType: "Deluxe Sea View",
+          address: "25 Harbor Road, Kyrenia",
+          confirmation: "HK7891234",
+          status: "Confirmed"
+        }
+      ],
+      tours: [
+        {
+          name: "Kyrenia Castle & Shipwreck Museum",
+          date: "Mar 21, 2025",
+          time: "9:00 AM - 12:00 PM",
+          meetingPoint: "Castle Main Entrance",
+          guide: "Mehmet A.",
+          confirmation: "TCK-12345",
+          status: "Confirmed"
+        },
+        {
+          name: "Traditional Harbor Cruise",
+          date: "Mar 22, 2025",
+          time: "2:00 PM - 4:00 PM",
+          meetingPoint: "Kyrenia Harbor Pier 3",
+          guide: "Captain Nikos",
+          confirmation: "HC-56789",
+          status: "Confirmed"
+        }
+      ],
+      restaurants: [
+        {
+          name: "Harbor Fish Tavern",
+          date: "Mar 21, 2025",
+          time: "7:30 PM",
+          cuisine: "Mediterranean Seafood",
+          address: "10 Marina Way, Kyrenia Harbor",
+          reservation: "Table for 2",
+          confirmation: "RF-45678",
+          status: "Confirmed"
+        },
+        {
+          name: "Ottoman Courtyard",
+          date: "Mar 22, 2025",
+          time: "8:00 PM",
+          cuisine: "Traditional Cypriot",
+          address: "42 Castle View Street, Kyrenia",
+          reservation: "Table for 2",
+          confirmation: "OC-12345",
+          status: "Confirmed"
+        }
+      ],
+      museums: [
+        {
+          name: "Shipwreck Museum",
+          date: "Mar 21, 2025",
+          time: "10:00 AM - 11:30 AM",
+          address: "Inside Kyrenia Castle",
+          ticketType: "Included with Castle Entry",
+          highlights: "Ancient Greek Merchant Vessel",
+          status: "Scheduled"
+        },
+        {
+          name: "Folk Art Museum",
+          date: "Mar 23, 2025",
+          time: "10:00 AM - 12:00 PM",
+          address: "15 Old Town Street, Kyrenia",
+          ticketType: "General Admission",
+          highlights: "Traditional Cypriot Crafts",
+          status: "Tickets Purchased"
+        }
+      ]
+    }
   },
+  // Other destinations remain unchanged
   {
     id: 2,
     title: "Salamis Ruins",
@@ -51,6 +162,8 @@ const destinations = [
     duration: "1 day",
     travellers: "2 travellers",
     date: "Apr 15 - 16",
+    categories: ["historical"],
+    location: "Famagusta, Cyprus",
     author: {
       name: "Alex T.",
       description: "Historian",
@@ -90,6 +203,8 @@ const destinations = [
     duration: "1 day",
     travellers: "1 traveller",
     date: "May 5 - 6",
+    categories: ["historical", "activities"],
+    location: "Bellapais, Cyprus",
     author: {
       name: "Sophie N.",
       description: "Travel Photographer",
@@ -129,6 +244,8 @@ const destinations = [
     duration: "2 days",
     travellers: "4 travellers",
     date: "Jun 10 - 12",
+    categories: ["beaches", "activities"],
+    location: "Karpas Peninsula, Cyprus",
     author: {
       name: "David M.",
       description: "Beach Expert",
@@ -165,6 +282,8 @@ const destinations = [
 const TravelGuide = () => {
   const [selectedDestination, setSelectedDestination] = useState(null);
   const [expandedMilestone, setExpandedMilestone] = useState(null);
+  const [activeTab, setActiveTab] = useState('milestones');
+  const [searchTerm, setSearchTerm] = useState('');
   const [filters, setFilters] = useState({
     beaches: false,
     historical: false,
@@ -178,10 +297,40 @@ const TravelGuide = () => {
       [filter]: !filters[filter]
     });
   };
+  
+  // Filter destinations based on search term and selected categories
+  const filterDestinations = (destinationsToFilter) => {
+    // If no filters are selected and search is empty, return all destinations
+    const areNoFiltersSelected = Object.values(filters).every(value => value === false);
+    
+    return destinationsToFilter.filter(destination => {
+      // Search term matching
+      const searchMatch = 
+        searchTerm === '' || 
+        destination.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        destination.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        destination.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        destination.author.name.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      // Category filtering
+      let categoryMatch = areNoFiltersSelected; // If no filters selected, all pass
+      
+      if (!areNoFiltersSelected) {
+        // Check if any of the destination's categories match the selected filters
+        categoryMatch = destination.categories.some(category => filters[category]);
+      }
+      
+      return searchMatch && categoryMatch;
+    });
+  };
+  
+  // Apply filters to destinations
+  const filteredDestinations = filterDestinations(destinations);
 
   const openDestinationPopup = (destination) => {
     setSelectedDestination(destination);
     setExpandedMilestone(null);
+    setActiveTab('milestones');
   };
 
   const closeDestinationPopup = () => {
@@ -191,6 +340,28 @@ const TravelGuide = () => {
 
   const toggleMilestone = (index) => {
     setExpandedMilestone(expandedMilestone === index ? null : index);
+  };
+
+  // Function to format date to a more readable format
+  const formatDate = (dateString) => {
+    const options = { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' };
+    return new Date(dateString).toLocaleDateString('en-US', options);
+  };
+
+  // Function to render status badge with appropriate color
+  const renderStatusBadge = (status) => {
+    let color = 'gray';
+    
+    if (status === 'Confirmed') color = 'green';
+    else if (status === 'Pending') color = 'yellow';
+    else if (status === 'Cancelled') color = 'red';
+    else if (status === 'Scheduled' || status === 'Tickets Purchased') color = 'blue';
+    
+    return (
+      <span className={`bg-${color}-100 text-${color}-800 text-xs font-medium px-2 py-1 rounded-full`}>
+        {status}
+      </span>
+    );
   };
 
   return (
@@ -203,6 +374,8 @@ const TravelGuide = () => {
               <input
                 type="text"
                 placeholder="Search destinations..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full px-4 py-2 pl-6 pr-10 rounded-full bg-slate-700 bg-opacity-50 text-white placeholder-gray-300 border-none focus:outline-none focus:ring-2 focus:ring-sky-500"
               />
               <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
@@ -271,7 +444,8 @@ const TravelGuide = () => {
           {/* Main Content */}
           <div className="flex-1">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {destinations.map((destination) => (
+              {filteredDestinations.length > 0 ? (
+                filteredDestinations.map((destination) => (
                 <div 
                   key={destination.id} 
                   className="bg-white rounded-xl overflow-hidden shadow-lg transition-transform hover:shadow-xl cursor-pointer"
@@ -330,20 +504,63 @@ const TravelGuide = () => {
                     </div>
                   </div>
                 </div>
-              ))}
+              ))
+              ) : (
+                <div className="col-span-2 py-10">
+                  <div className="bg-white rounded-3xl p-8 text-center text-slate-900 shadow-lg">
+                    <svg className="w-16 h-16 text-red-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <h3 className="text-2xl font-bold mb-2">No Results Found</h3>
+                    <p className="text-lg text-slate-600 mb-6">We couldn't find any matches for your search criteria.</p>
+                    <div className="flex flex-wrap justify-center gap-4">
+                      <button 
+                        onClick={() => {
+                          setSearchTerm('');
+                          setFilters({
+                            beaches: false,
+                            historical: false,
+                            restaurants: false,
+                            activities: false
+                          });
+                        }}
+                        className="px-6 py-2 bg-sky-600 text-white rounded-full hover:bg-sky-700 transition"
+                      >
+                        Clear All Filters
+                      </button>
+                      <button 
+                        onClick={() => {
+                          setSearchTerm('');
+                          setFilters({
+                            beaches: true,
+                            historical: true,
+                            restaurants: true,
+                            activities: true
+                          });
+                        }}
+                        className="px-6 py-2 border border-sky-600 text-sky-600 rounded-full hover:bg-sky-50 transition"
+                      >
+                        View All Categories
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
-            <div className="flex justify-center mt-8">
-              <button className="bg-sky-600 hover:bg-sky-700 text-white font-medium py-2 px-6 rounded-full transition duration-200">
-                Load More
-              </button>
-            </div>
+            {filteredDestinations.length > 0 && (
+              <div className="flex justify-center mt-8">
+                <button className="bg-sky-600 hover:bg-sky-700 text-white font-medium py-2 px-6 rounded-full transition duration-200">
+                  Load More
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
         {/* Destination Popup with Timeline */}
         {selectedDestination && (
           <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-xl p-6 max-w-4xl w-full max-h-[90vh] overflow-auto">
+            <div className="bg-white rounded-xl p-6 max-w-5xl w-full max-h-[90vh] overflow-auto">
               <div className="flex justify-between items-start mb-6">
                 <div>
                   <div className="flex items-center mb-1">
@@ -427,204 +644,351 @@ const TravelGuide = () => {
                 </div>
               </div>
 
-              {/* Timeline Section */}
-              <h2 className="text-xl font-bold text-gray-800 mb-4">Journey Details</h2>
-              
-              {/* Flight/Transport Card */}
+              {/* Explanation area - Only for Kyrenia Castle & Harbor */}
+              {selectedDestination.id === 1 && selectedDestination.extendedDescription && (
+                <div className="mb-8 bg-gray-50 p-6 rounded-lg border border-gray-200">
+                  <div className="flex items-center mb-4">
+                    <FaInfoCircle className="text-sky-600 mr-2" size={20} />
+                    <h3 className="text-xl font-bold text-gray-800">About Kyrenia Castle & Harbor</h3>
+                  </div>
+                  <p className="text-gray-700 leading-relaxed">{selectedDestination.extendedDescription}</p>
+                </div>
+              )}
+
+              {/* Tab navigation for Kyrenia Castle & Harbor */}
               {selectedDestination.id === 1 && (
-                <div className="bg-white rounded-xl shadow-md p-4 mb-6">
-                  <div className="flex justify-between items-center">
-                    <div className="text-center">
-                      <div className="text-gray-500">Jan 20</div>
-                      <div className="text-red-500 text-2xl font-bold">09:50</div>
-                      <div className="font-medium">BOM</div>
-                    </div>
-                    
-                    <div className="flex-1 flex flex-col items-center mx-4">
-                      <div className="text-xl font-medium text-gray-500">14h20m</div>
-                      <div className="w-full flex items-center">
-                        <div className="h-0.5 flex-1 bg-gray-300"></div>
-                        <div className="mx-2 text-blue-500">
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M22 2L11 13"></path>
-                            <path d="M22 2l-7 20-4-9-9-4 20-7z"></path>
-                          </svg>
+                <div className="border-b border-gray-200 mb-6">
+                  <nav className="flex space-x-8">
+                    <button
+                      onClick={() => setActiveTab('milestones')}
+                      className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                        activeTab === 'milestones'
+                          ? 'border-sky-500 text-sky-600'
+                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      }`}
+                    >
+                      Highlights & Activities
+                    </button>
+                    <button
+                      onClick={() => setActiveTab('travel')}
+                      className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                        activeTab === 'travel'
+                          ? 'border-sky-500 text-sky-600'
+                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      }`}
+                    >
+                      Travel Logistics
+                    </button>
+                  </nav>
+                </div>
+              )}
+
+              {/* Kyrenia Castle - Original Timeline Section */}
+              {(selectedDestination.id !== 1 || activeTab === 'milestones') && (
+                <>
+                  <h2 className="text-xl font-bold text-gray-800 mb-4">Transfer & Transportation</h2>
+                  <div className="border-l-2 border-gray-200 ml-4 mb-8">
+                    {selectedDestination.milestones.map((milestone, index) => (
+                      <div key={index} className="relative mb-8">
+                        <div className="absolute -left-4 top-0 w-6 h-6 bg-white rounded-full border-2 border-sky-500 flex items-center justify-center">
+                          <div className={`w-2 h-2 rounded-full ${expandedMilestone === index ? 'bg-sky-500' : 'bg-gray-300'}`}></div>
                         </div>
-                        <div className="h-0.5 flex-1 bg-gray-300"></div>
+                        
+                        <div 
+                          className={`ml-6 cursor-pointer transition ${expandedMilestone === index ? 'bg-gray-50 rounded-lg p-4' : 'hover:bg-gray-50 hover:rounded-lg hover:p-4'}`}
+                          onClick={() => toggleMilestone(index)}
+                        >
+                          <div className="flex items-center text-gray-500 text-sm mb-1">
+                            <span className="font-medium">{index + 1}</span>
+                            <span className="mx-2">•</span>
+                            <span>{milestone.location}</span>
+                          </div>
+                          
+                          <div className="mb-2">
+                            <div className="flex items-center mb-2">
+                              <FaCar className="text-gray-500 mr-2" size={16} />
+                              <span className="text-gray-800 font-medium">Car</span>
+                              <span className="ml-auto text-gray-500 text-sm">Coming soon...</span>
+                            </div>
+                            
+                            <div className="flex items-center justify-between">
+                              <div className="flex flex-col">
+                                <span className="font-medium text-gray-800">{milestone.day}</span>
+                                <div className="flex items-center text-sm text-gray-500">
+                                  <FaRegClock className="mr-1" size={12} />
+                                  <span>{milestone.duration}</span>
+                                  <span className="mx-1">•</span>
+                                  <span>{milestone.type}</span>
+                                </div>
+                              </div>
+                              <span className="font-medium text-gray-800">
+                                {milestone.day === selectedDestination.milestones[0].day ? milestone.day : 'Sun, Mar 23'}
+                              </span>
+                            </div>
+                          </div>
+                          
+                          <h3 className="text-lg font-medium text-gray-800 mb-1">{milestone.title}</h3>
+                          <p className="text-gray-600 mb-2">{milestone.description}</p>
+                          
+                          <div className="flex justify-end">
+                            <button className="text-sky-600 hover:text-sky-800 transition text-sm">
+                              {expandedMilestone === index ? 'Show Less' : 'Learn More'}
+                            </button>
+                          </div>
+                        </div>
+                        
+                        {/* Expanded milestone content */}
+                        {expandedMilestone === index && (
+                          <div className="ml-6 mt-3 bg-white border border-gray-200 rounded-lg overflow-hidden shadow-md transition-all duration-300 animate-fadeIn">
+                            <div className="md:flex">
+                              <div className="md:w-1/2">
+                                <img 
+                                  src={milestone.image} 
+                                  alt={milestone.title} 
+                                  className="w-full h-48 md:h-full object-cover"
+                                  onError={(e) => {
+                                    e.target.src = "/api/placeholder/400/300";
+                                  }}
+                                />
+                              </div>
+                              <div className="md:w-1/2 p-4">
+                                <div className="flex items-center mb-3">
+                                  <span className="bg-sky-100 text-sky-800 px-3 py-1 rounded-full text-sm font-medium">
+                                    {milestone.day}
+                                  </span>
+                                  <h2 className="text-lg font-bold text-gray-800 ml-3">
+                                    {milestone.title}
+                                  </h2>
+                                </div>
+                                
+                                <p className="text-gray-600 mb-4 leading-relaxed">
+                                  {milestone.extendedContent}
+                                </p>
+                                
+                                <div className="bg-yellow-50 rounded-lg p-3 flex items-start">
+                                  <FaAward className="text-yellow-600 mr-3 mt-1 flex-shrink-0" size={16} />
+                                  <p className="text-gray-700">
+                                    <span className="font-medium text-gray-800">Key Achievement:</span> {milestone.achievement}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        )}
                       </div>
-                      <div className="text-gray-500">Economy</div>
+                    ))}
+                  </div>
+                </>
+              )}
+
+              {/* New Travel Logistics Timeline - Only for Kyrenia Castle & Harbor */}
+              {selectedDestination.id === 1 && activeTab === 'travel' && selectedDestination.travelLogistics && (
+                <div>
+                  {/* Flights Section */}
+                  <div className="mb-8">
+                    <div className="flex items-center mb-4">
+                      <FaPlane className="text-sky-600 mr-2" size={20} />
+                      <h3 className="text-xl font-bold text-gray-800">Flights</h3>
                     </div>
-                    
-                    <div className="text-center">
-                      <div className="text-gray-500">Jan 21</div>
-                      <div className="text-green-500 text-2xl font-bold">15:38</div>
-                      <div className="font-medium">USA</div>
+                    <div className="border-l-2 border-gray-200 ml-4">
+                      {selectedDestination.travelLogistics.flights.map((flight, index) => (
+                        <div key={index} className="relative mb-6">
+                          <div className="absolute -left-3 top-0 w-4 h-4 bg-sky-500 rounded-full"></div>
+                          <div className="ml-6 p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
+                            <div className="flex justify-between items-start mb-2">
+                              <div className="flex items-center">
+                                <span className="font-bold text-gray-800">{flight.flight}</span>
+                                <span className="mx-2">•</span>
+                                <span className="text-sm text-gray-600">{formatDate(flight.date)}</span>
+                              </div>
+                              {renderStatusBadge(flight.status)}
+                            </div>
+                            <div className="flex items-center text-gray-700 mb-2">
+                              <div className="flex-1">
+                                <div className="font-medium">{flight.from}</div>
+                                <div className="text-sm text-gray-500">{flight.time.split(' - ')[0]}</div>
+                              </div>
+                              <div className="mx-4 border-t border-gray-300 flex-1 relative">
+                                <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-white px-2">
+                                  <FaPlane className="text-gray-400 transform rotate-90" size={14} />
+                                </div>
+                              </div>
+                              <div className="flex-1 text-right">
+                                <div className="font-medium">{flight.to}</div>
+                                <div className="text-sm text-gray-500">{flight.time.split(' - ')[1]}</div>
+                              </div>
+                            </div>
+                            <div className="text-sm text-gray-600">
+                              {flight.airline}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Hotels Section */}
+                  <div className="mb-8">
+                    <div className="flex items-center mb-4">
+                      <FaHotel className="text-sky-600 mr-2" size={20} />
+                      <h3 className="text-xl font-bold text-gray-800">Accommodations</h3>
+                    </div>
+                    <div className="border-l-2 border-gray-200 ml-4">
+                      {selectedDestination.travelLogistics.hotels.map((hotel, index) => (
+                        <div key={index} className="relative mb-6">
+                          <div className="absolute -left-3 top-0 w-4 h-4 bg-sky-500 rounded-full"></div>
+                          <div className="ml-6 p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
+                            <div className="flex justify-between items-start mb-2">
+                              <h4 className="font-bold text-gray-800">{hotel.name}</h4>
+                              {renderStatusBadge(hotel.status)}
+                            </div>
+                            <div className="flex items-center text-sm text-gray-700 mb-3">
+                              <FaCalendarAlt className="text-gray-500 mr-2" size={14} />
+                              <span>{formatDate(hotel.checkIn)} — {formatDate(hotel.checkOut)}</span>
+                            </div>
+                            <div className="flex items-start mb-2">
+                              <FaMapMarkerAlt className="text-gray-500 mt-1 mr-2 flex-shrink-0" size={14} />
+                              <span className="text-gray-700">{hotel.address}</span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <div className="text-sm text-gray-600">
+                                <span className="font-medium">Room:</span> {hotel.roomType}
+                              </div>
+                              <div className="text-sm text-gray-600">
+                                <span className="font-medium">Confirmation:</span> {hotel.confirmation}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Tours Section */}
+                  <div className="mb-8">
+                    <div className="flex items-center mb-4">
+                      <FaMapMarkedAlt className="text-sky-600 mr-2" size={20} />
+                      <h3 className="text-xl font-bold text-gray-800">Tours & Activities</h3>
+                    </div>
+                    <div className="border-l-2 border-gray-200 ml-4">
+                      {selectedDestination.travelLogistics.tours.map((tour, index) => (
+                        <div key={index} className="relative mb-6">
+                          <div className="absolute -left-3 top-0 w-4 h-4 bg-sky-500 rounded-full"></div>
+                          <div className="ml-6 p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
+                            <div className="flex justify-between items-start mb-2">
+                              <h4 className="font-bold text-gray-800">{tour.name}</h4>
+                              {renderStatusBadge(tour.status)}
+                            </div>
+                            <div className="flex items-center text-sm text-gray-700 mb-3">
+                              <FaCalendarAlt className="text-gray-500 mr-2" size={14} />
+                              <span>{formatDate(tour.date)}</span>
+                              <span className="mx-2">•</span>
+                              <FaRegClock className="text-gray-500 mr-2" size={14} />
+                              <span>{tour.time}</span>
+                            </div>
+                            <div className="flex items-start mb-3">
+                              <FaMapMarkerAlt className="text-gray-500 mt-1 mr-2 flex-shrink-0" size={14} />
+                              <div>
+                                <span className="text-gray-700 font-medium">Meeting Point:</span>
+                                <span className="text-gray-700 ml-1">{tour.meetingPoint}</span>
+                              </div>
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <div className="text-sm text-gray-600">
+                                <span className="font-medium">Guide:</span> {tour.guide}
+                              </div>
+                              <div className="text-sm text-gray-600">
+                                <span className="font-medium">Confirmation:</span> {tour.confirmation}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Restaurants Section */}
+                  <div className="mb-8">
+                    <div className="flex items-center mb-4">
+                      <FaUtensils className="text-sky-600 mr-2" size={20} />
+                      <h3 className="text-xl font-bold text-gray-800">Dining</h3>
+                    </div>
+                    <div className="border-l-2 border-gray-200 ml-4">
+                      {selectedDestination.travelLogistics.restaurants.map((restaurant, index) => (
+                        <div key={index} className="relative mb-6">
+                          <div className="absolute -left-3 top-0 w-4 h-4 bg-sky-500 rounded-full"></div>
+                          <div className="ml-6 p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
+                            <div className="flex justify-between items-start mb-2">
+                              <h4 className="font-bold text-gray-800">{restaurant.name}</h4>
+                              {renderStatusBadge(restaurant.status)}
+                            </div>
+                            <div className="flex items-center text-sm text-gray-700 mb-3">
+                              <FaCalendarAlt className="text-gray-500 mr-2" size={14} />
+                              <span>{formatDate(restaurant.date)}</span>
+                              <span className="mx-2">•</span>
+                              <FaRegClock className="text-gray-500 mr-2" size={14} />
+                              <span>{restaurant.time}</span>
+                            </div>
+                            <div className="flex items-start mb-3">
+                              <FaMapMarkerAlt className="text-gray-500 mt-1 mr-2 flex-shrink-0" size={14} />
+                              <span className="text-gray-700">{restaurant.address}</span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <div className="text-sm text-gray-600">
+                                <span className="font-medium">Cuisine:</span> {restaurant.cuisine}
+                              </div>
+                              <div className="text-sm text-gray-600">
+                                <span className="font-medium">Reservation:</span> {restaurant.reservation} • {restaurant.confirmation}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Museums Section */}
+                  <div className="mb-8">
+                    <div className="flex items-center mb-4">
+                      <FaLandmark className="text-sky-600 mr-2" size={20} />
+                      <h3 className="text-xl font-bold text-gray-800">Museums & Attractions</h3>
+                    </div>
+                    <div className="border-l-2 border-gray-200 ml-4">
+                      {selectedDestination.travelLogistics.museums.map((museum, index) => (
+                        <div key={index} className="relative mb-6">
+                          <div className="absolute -left-3 top-0 w-4 h-4 bg-sky-500 rounded-full"></div>
+                          <div className="ml-6 p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
+                            <div className="flex justify-between items-start mb-2">
+                              <h4 className="font-bold text-gray-800">{museum.name}</h4>
+                              {renderStatusBadge(museum.status)}
+                            </div>
+                            <div className="flex items-center text-sm text-gray-700 mb-3">
+                              <FaCalendarAlt className="text-gray-500 mr-2" size={14} />
+                              <span>{formatDate(museum.date)}</span>
+                              <span className="mx-2">•</span>
+                              <FaRegClock className="text-gray-500 mr-2" size={14} />
+                              <span>{museum.time}</span>
+                            </div>
+                            <div className="flex items-start mb-3">
+                              <FaMapMarkerAlt className="text-gray-500 mt-1 mr-2 flex-shrink-0" size={14} />
+                              <span className="text-gray-700">{museum.address}</span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <div className="text-sm text-gray-600">
+                                <span className="font-medium">Ticket:</span> {museum.ticketType}
+                              </div>
+                              <div className="text-sm text-gray-600">
+                                <FaTicketAlt className="text-gray-500 mr-1 inline" size={12} />
+                                <span className="font-medium">Highlights:</span> {museum.highlights}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </div>
               )}
-              
-              {/* Airport Pickup Card */}
-              <div className="bg-white rounded-xl shadow-md p-4 mb-6">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <h3 className="text-xl font-bold text-gray-800">Pick Up From Airport</h3>
-                    <div className="mt-2">
-                      <div className="text-gray-700">Taxi Number: MPA546</div>
-                      <div className="text-gray-700">Contact number: +999999</div>
-                    </div>
-                  </div>
-                  <div className="text-center">
-                    <div className="w-16 h-12 bg-yellow-100 rounded-lg mx-auto flex items-center justify-center mb-1">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-yellow-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <rect x="1" y="4" width="16" height="6" rx="2"></rect>
-                        <rect x="4" y="10" width="10" height="8" rx="2"></rect>
-                        <circle cx="6" cy="15" r="1"></circle>
-                        <circle cx="12" cy="15" r="1"></circle>
-                      </svg>
-                    </div>
-                    <div className="text-gray-600 text-sm">Premium</div>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Hotel Stay Card */}
-              <div className="bg-white rounded-xl shadow-md p-4 mb-6">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <h3 className="text-xl font-bold text-gray-800">Stay At {selectedDestination.title.split(' ')[0]} Hotel</h3>
-                    <div className="mt-2">
-                      <div className="text-gray-700">Booking Id: 24JN09</div>
-                      <div className="text-gray-700">Contact number: +909090</div>
-                    </div>
-                  </div>
-                  <div className="text-center">
-                    <div className="w-16 h-12 bg-blue-100 rounded-lg mx-auto flex items-center justify-center mb-1 relative">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-blue-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                        <polyline points="9 22 9 12 15 12 15 22"></polyline>
-                      </svg>
-                      <div className="absolute -top-1 -right-1 flex">
-                        {[...Array(4)].map((_, i) => (
-                          <svg key={i} xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-yellow-400" viewBox="0 0 24 24" fill="currentColor" stroke="none">
-                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                          </svg>
-                        ))}
-                      </div>
-                    </div>
-                    <div className="text-gray-600 text-sm flex items-center justify-center">
-                      Exclusive 
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-yellow-400 ml-1" viewBox="0 0 20 20" fill="currentColor">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                      </svg>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Daily Activities Timeline */}
-              <h3 className="text-lg font-medium bg-blue-50 text-blue-700 px-4 py-2 rounded-lg inline-block mb-4">Daily Activities</h3>
-              <div className="border-l-2 border-blue-300 ml-4 mb-8">
-                {selectedDestination.milestones.map((milestone, index) => (
-                  <div key={index} className="relative mb-8">
-                    <div className="absolute -left-3 top-0 w-5 h-5 bg-white rounded-full border-2 border-blue-500 flex items-center justify-center">
-                      <div className={`w-2 h-2 rounded-full ${expandedMilestone === index ? 'bg-blue-500' : 'bg-gray-300'}`}></div>
-                    </div>
-                    
-                    <div 
-                      className={`ml-6 cursor-pointer transition ${expandedMilestone === index ? 'bg-gray-50 rounded-lg p-4' : 'hover:bg-gray-50 hover:rounded-lg hover:p-4'}`}
-                      onClick={() => toggleMilestone(index)}
-                    >
-                      <div className="flex items-center text-gray-500 text-sm mb-1">
-                        <span className="font-medium">{index + 1}</span>
-                        <span className="mx-2">•</span>
-                        <span>{milestone.location}</span>
-                      </div>
-                      
-                      <div className="mb-2">
-                        <div className="flex items-center mb-2">
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-500 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.4 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.5-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.5 2.8C1.4 11.4 1 12.4 1 13.5V16c0 .6.4 1 1 1h2"></path>
-                            <circle cx="7" cy="17" r="2"></circle>
-                            <circle cx="17" cy="17" r="2"></circle>
-                          </svg>
-                          <span className="text-gray-800 font-medium">Car</span>
-                          <span className="ml-auto text-gray-500 text-sm">Coming soon...</span>
-                        </div>
-                        
-                        <div className="flex items-center justify-between">
-                          <div className="flex flex-col">
-                            <span className="font-medium text-gray-800">{milestone.day}</span>
-                            <div className="flex items-center text-sm text-gray-500">
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <polyline points="12 6 12 12 16 14"></polyline>
-                              </svg>
-                              <span>{milestone.duration}</span>
-                              <span className="mx-1">•</span>
-                              <span>{milestone.type}</span>
-                            </div>
-                          </div>
-                          <span className="font-medium text-gray-800">
-                            {milestone.day === selectedDestination.milestones[0].day ? milestone.day : 'Sun, Mar 23'}
-                          </span>
-                        </div>
-                      </div>
-                      
-                      <h3 className="text-lg font-medium text-gray-800 mb-1">{milestone.title}</h3>
-                      <p className="text-gray-600 mb-2">{milestone.description}</p>
-                      
-                      <div className="flex justify-end">
-                        <button className="text-sky-600 hover:text-sky-800 transition text-sm">
-                          {expandedMilestone === index ? 'Show Less' : 'Learn More'}
-                        </button>
-                      </div>
-                    </div>
-                    
-                    {/* Expanded milestone content */}
-                    {expandedMilestone === index && (
-                      <div className="ml-6 mt-3 bg-white border border-gray-200 rounded-lg overflow-hidden shadow-md transition-all duration-300 animate-fadeIn">
-                        <div className="md:flex">
-                          <div className="md:w-1/2">
-                            <img 
-                              src={milestone.image} 
-                              alt={milestone.title} 
-                              className="w-full h-48 md:h-full object-cover"
-                              onError={(e) => {
-                                e.target.src = "/api/placeholder/400/300";
-                              }}
-                            />
-                          </div>
-                          <div className="md:w-1/2 p-4">
-                            <div className="flex items-center mb-3">
-                              <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
-                                {milestone.day}
-                              </span>
-                              <h2 className="text-lg font-bold text-gray-800 ml-3">
-                                {milestone.title}
-                              </h2>
-                            </div>
-                            
-                            <p className="text-gray-600 mb-4 leading-relaxed">
-                              {milestone.extendedContent}
-                            </p>
-                            
-                            <div className="bg-yellow-50 rounded-lg p-3 flex items-start">
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-yellow-600 mr-3 mt-1 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <circle cx="12" cy="8" r="7"></circle>
-                                <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
-                              </svg>
-                              <p className="text-gray-700">
-                                <span className="font-medium text-gray-800">Key Achievement:</span> {milestone.achievement}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
             </div>
           </div>
         )}
