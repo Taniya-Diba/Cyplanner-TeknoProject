@@ -1,3 +1,6 @@
+/*{TODO}: FIX Search and Filter functionality so when the target is not found 
+  The user will not see a white screen */
+
 import React, { useState } from 'react';
 import Layout from '../components/Layout';
 import { 
