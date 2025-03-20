@@ -1,90 +1,85 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 const GooglePlaceImage = ({ placeName, lat, lng, apiKey, onImageFound, fallbackImage }) => {
-  const [photoUrl, setPhotoUrl] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [imageUrl, setImageUrl] = useState(fallbackImage);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!placeName || !apiKey || !lat || !lng) {
-      setLoading(false);
-      return;
-    }
-    
-    console.log(`Fetching image for "${placeName}" at coordinates: ${lat}, ${lng}`);
-    
-    // Check if the Google Maps API is loaded
-    if (!window.google || !window.google.maps) {
-      console.error("Google Maps API not loaded");
-      setError("Google Maps API not loaded");
-      setLoading(false);
-      return;
-    }
+    // Function to fetch place details and photo reference
+    const fetchPlaceImage = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
 
-    try {
-      // Create a PlacesService instance
-      const placesService = new window.google.maps.places.PlacesService(
-        document.createElement('div')
-      );
+        // First, find the place using the Places API with nearby search
+        const searchResponse = await fetch(
+          `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=500&keyword=${encodeURIComponent(placeName)}&key=${apiKey}`
+        );
 
-      // Search for the place
-      placesService.textSearch(
-        {
-          query: placeName,
-          location: new window.google.maps.LatLng(lat, lng),
-          radius: 5000
-        },
-        (results, status) => {
-          if (status === window.google.maps.places.PlacesServiceStatus.OK && results.length > 0) {
-            // Get details for the first result to access photos
-            placesService.getDetails(
-              {
-                placeId: results[0].place_id,
-                fields: ['photos', 'name']
-              },
-              (place, detailsStatus) => {
-                if (detailsStatus === window.google.maps.places.PlacesServiceStatus.OK) {
-                  if (place.photos && place.photos.length > 0) {
-                    const photo = place.photos[0];
-                    const photoUrl = photo.getUrl({maxWidth: 600, maxHeight: 400});
-                    
-                    setPhotoUrl(photoUrl);
-                    if (onImageFound) onImageFound(photoUrl);
-                  } else {
-                    console.log(`No photos found for ${placeName}`);
-                  }
-                } else {
-                  console.error(`Error getting place details: ${detailsStatus}`);
-                  setError(`Error getting place details: ${detailsStatus}`);
-                }
-                setLoading(false);
-              }
-            );
-          } else {
-            console.error(`Error finding place: ${status}`);
-            setError(`Error finding place: ${status}`);
-            setLoading(false);
-          }
+        if (!searchResponse.ok) {
+          throw new Error("Failed to fetch place data");
         }
-      );
-    } catch (err) {
-      console.error("Error in GooglePlaceImage:", err);
-      setError(`Error: ${err.message}`);
-      setLoading(false);
+
+        const searchData = await searchResponse.json();
+        
+        // Check if we found any places and if they have photos
+        if (searchData.results.length === 0 || !searchData.results[0].photos) {
+          // If no results or no photos, use the fallback image
+          setImageUrl(fallbackImage);
+          setIsLoading(false);
+          return;
+        }
+
+        // Get the photo reference from the first result
+        const photoReference = searchData.results[0].photos[0].photo_reference;
+
+        // Use the photo reference to get the actual image
+        const imageUrlFromGoogle = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${photoReference}&key=${apiKey}`;
+        
+        setImageUrl(imageUrlFromGoogle);
+        
+        // Notify parent component that we found an image
+        if (onImageFound) {
+          onImageFound(imageUrlFromGoogle);
+        }
+      } catch (err) {
+        console.error("Error fetching Google Place image:", err);
+        setError(err.message);
+        setImageUrl(fallbackImage);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    // Only try to fetch if we have the necessary data
+    if (placeName && lat && lng && apiKey) {
+      fetchPlaceImage();
+    } else {
+      setImageUrl(fallbackImage);
+      setIsLoading(false);
     }
-  }, [placeName, lat, lng, apiKey, onImageFound]);
+  }, [placeName, lat, lng, apiKey, fallbackImage, onImageFound]);
 
-  if (loading) {
-    return <div className="w-full h-40 bg-gray-200 animate-pulse rounded-xl"></div>;
-  }
-
-  if (error) {
-    console.error(`Error fetching image for ${placeName}:`, error);
-  }
-
-  return photoUrl ? 
-    <img src={photoUrl} alt={placeName} className="w-full h-40 object-cover rounded-xl" /> :
-    <img src={fallbackImage} alt={placeName} className="w-full h-40 object-cover rounded-xl" />;
+  return (
+    <div className="relative">
+      {isLoading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-gray-200">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        </div>
+      )}
+      <img
+        src={imageUrl}
+        alt={placeName || "Place image"}
+        className="w-full h-40 object-cover rounded-xl mb-2"
+        onError={() => {
+          setImageUrl(fallbackImage);
+          setError("Failed to load image");
+        }}
+      />
+      {error && <div className="text-xs text-red-500 mt-1">Using fallback image</div>}
+    </div>
+  );
 };
 
 export default GooglePlaceImage;
