@@ -14,6 +14,9 @@ import IMG_RENT from '../assets/images/IMG/rent cars.jpg'
 import IMG_CITYT from '../assets/images/IMG/lefkosa.jpg'
 import IMG_BECT from '../assets/images/IMG/beachtours.jpg'
 import IMG_HIST from '../assets/images/IMG/historical.jpg'
+import IMG_DISH1 from '../assets/images/IMG/blue-song-restaurant-1.jpg'
+import IMG_DISH2 from '../assets/images/IMG/blue-song-restaurant-2.jpg'
+import IMG_DISH3 from '../assets/images/IMG/blue-song-restaurant-3.jpg'
 
 const Deals = () => {
   const [activeTab, setActiveTab] = useState('all');
