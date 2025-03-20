@@ -1,8 +1,11 @@
-/*{TODO}: FIX Search and Filter functionality so when the target is not found 
-  The user will not see a white screen */
-
 import React, { useState } from 'react';
 import Layout from '../components/Layout';
+import IMG_PER from '../assets/images/IMG/person.png'
+import IMG_Kyrena from '../assets/images/IMG/kyrenia.jpg'
+import IMG_Cruise from '../assets/images/IMG/cruise.jpg'
+import IMG_Salamis from '../assets/images/IMG/Salamis Ruins, Northern Cyprus.jpg'
+import IMG_Bellapais from '../assets/images/IMG/Bellapais Abbey.jpg'
+
 import { 
   FaAward, 
   FaMapMarkerAlt, 
@@ -23,7 +26,7 @@ const destinations = [
   {
     id: 1,
     title: "Kyrenia Castle & Harbor",
-    image: "/src/assets/images/destinations/kyrenia-castle.jpg",
+    image: IMG_Kyrena,
     rating: 4.8,
     duration: "2 days",
     travellers: "1 traveller",
@@ -451,8 +454,7 @@ const TravelGuide = () => {
                 filteredDestinations.map((destination) => (
                 <div 
                   key={destination.id} 
-                  className="bg-white rounded-xl overflow-hidden shadow-lg transition-transform hover:shadow-xl cursor-pointer"
-                  onClick={() => openDestinationPopup(destination)}
+                  className="bg-white rounded-xl overflow-hidden shadow-lg transition-transform hover:shadow-xl"
                 >
                   <div className="relative">
                     <img
@@ -472,7 +474,10 @@ const TravelGuide = () => {
                     </div>
                   </div>
                   
-                  <div className="p-4">
+                  <div 
+                    className="p-4 cursor-pointer"
+                    onClick={() => openDestinationPopup(destination)}
+                  >
                     <h2 className="text-xl font-bold text-gray-800 mb-2">{destination.title}</h2>
                     
                     <div className="flex items-center gap-2 text-sm text-gray-600 mb-3">
