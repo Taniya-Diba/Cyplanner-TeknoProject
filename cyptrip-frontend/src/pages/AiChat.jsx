@@ -1,7 +1,84 @@
 import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout.jsx';
 import AiLOGO from '../assets/images/IMG/aichatbotLOGO.png';
 import ReactMarkdown from 'react-markdown';
+
+// Import location data from ExplorePage
+const recommendationData = [
+  {
+    id: 1,
+    name: "Salamis Ruins",
+    lat: 35.0381,
+    lng: 33.9880,
+    description: "Ancient ruins of Salamis, a spectacular archaeological site with Roman and Byzantine remains, including a theater, gymnasium, and bath complex.",
+    rating: 4.7,
+    tags: ["Historical", "Ancient", "Archaeological"]
+  },
+  {
+    id: 2,
+    name: "Kyrenia Castle",
+    lat: 35.3403,
+    lng: 33.3195,
+    description: "Kyrenia Castle is a 16th-century castle built by the Venetians over a previous Crusader fortification. Within its walls lies a twelfth-century chapel showing reused late Roman capitals, and the Shipwreck Museum.",
+    rating: 4.5,
+    tags: ["Castle", "Museum", "Historical"]
+  },
+  {
+    id: 3,
+    name: "Varosha",
+    lat: 35.1186,
+    lng: 33.9472,
+    description: "Once a modern tourist area, Varosha became an abandoned district after the Turkish invasion of Cyprus in 1974. Parts of it have recently been reopened to visitors.",
+    rating: 4.2,
+    tags: ["Historical", "Urban", "Beach"]
+  },
+  {
+    id: 4,
+    name: "Bellapais Abbey",
+    lat: 35.2881,
+    lng: 33.3187,
+    description: "A stunning Gothic abbey ruins located in the northern part of Cyprus. Built in the 13th century, it offers beautiful views of the surrounding landscape.",
+    rating: 4.8,
+    tags: ["Abbey", "Historical", "Architecture"]
+  },
+];
+
+// Import events data from Home
+const events = [
+  { 
+    id: 1, 
+    name: 'Daylight Festival', 
+    date: '31 March', 
+    price: '350 TL', 
+    description: 'Experience the best electronic music with international and local DJs at this beachside festival.',
+    location: 'Escape Beach Club, Kyrenia',
+  },
+  { 
+    id: 2, 
+    name: 'Collectivebeat Comedy', 
+    date: '31 March', 
+    price: '350 TL', 
+    description: 'A night of laughs with local and international stand-up comedians.',
+    location: 'Colony Hotel, Kyrenia',
+  },
+  { 
+    id: 3, 
+    name: 'Korhan Sayginer', 
+    date: '12 April', 
+    price: '4000 TL', 
+    description: 'Witness world champion billiards player Korhan Sayginer demonstrate his incredible skills.',
+    location: 'Merit Royal Hotel, Kyrenia',
+  },
+  { 
+    id: 4, 
+    name: 'Zeybek Halk', 
+    date: '20 April', 
+    price: '1575 TL', 
+    description: 'Celebrate traditional Turkish and Cypriot folk dancing with this colorful and energetic performance.',
+    location: 'Rauf Raif Denktaş Culture and Congress Center, Nicosia',
+  },
+];
 
 const AiChat = () => {
   // State declarations
@@ -15,6 +92,7 @@ const AiChat = () => {
     { id: 4, name: 'Beaches' }
   ]);
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
   
   // Hardcoded API key (replace with your actual Gemini API key)
   const apiKey = "AIzaSyDe6vVwe0mQhv_s2qw5uLBos-99I4aXWOE"; // TODO: Replace with your actual API key
@@ -46,6 +124,28 @@ const AiChat = () => {
     setInterests([...interests, { id: newId, name: newInterest.trim() }]);
     setNewInterest('');
   };
+
+  // Function to navigate to the Explore page with a location ID
+  const navigateToExplore = (locationId) => {
+    navigate(`/explore/${locationId}`);
+  };
+  
+  // Function to parse AI response and add interactive links
+  const processResponse = (text) => {
+    // Check for location mentions and add links
+    recommendationData.forEach(location => {
+      const locationRegex = new RegExp(`\\b${location.name}\\b`, 'g');
+      text = text.replace(locationRegex, `[${location.name}](/explore/${location.id})`);
+    });
+    
+    // Check for event mentions and add links
+    events.forEach(event => {
+      const eventRegex = new RegExp(`\\b${event.name}\\b`, 'g');
+      text = text.replace(eventRegex, `[${event.name}](# "Event: ${event.date} at ${event.location}")`);
+    });
+    
+    return text;
+  };
   
   const handleSendMessage = async (e) => {
     e.preventDefault();
@@ -66,6 +166,16 @@ const AiChat = () => {
     const selectedInterests = interests.map(i => i.name);
     
     try {
+      // Location information to include in prompt
+      const locationsInfo = recommendationData.map(loc => 
+        `${loc.name}: ${loc.description} Tags: ${loc.tags.join(', ')} Location: lat ${loc.lat}, lng ${loc.lng}`
+      ).join('\n');
+      
+      // Events information to include in prompt
+      const eventsInfo = events.map(event => 
+        `${event.name}: ${event.date}, ${event.price} at ${event.location}. ${event.description}`
+      ).join('\n');
+      
       // Call Gemini API
       const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent', {
         method: 'POST',
@@ -84,12 +194,21 @@ const AiChat = () => {
                   Recent conversation: ${JSON.stringify(messages.slice(-3))}
                   User query: ${messageInput}
                   
+                  Available destinations in North Cyprus:
+                  ${locationsInfo}
+                  
+                  Upcoming events in North Cyprus:
+                  ${eventsInfo}
+                  
                   Important: 
                   1. Include relevant emoji in your responses to make them engaging
                   2. Use markdown for headers, bullet points, and to highlight important information
                   3. Make suggestions based on user interests
                   4. If suggesting places, include emoji for the type of place (beach 🏖️, restaurant 🍽️, historical site 🏛️, etc.)
-                  5. Format your response in a clear, visually appealing way with markdown`
+                  5. Format your response in a clear, visually appealing way with markdown
+                  6. When mentioning specific destinations (like Salamis Ruins, Kyrenia Castle, Varosha, or Bellapais Abbey), mention that the user can click on the name to view it on the map
+                  7. When mentioning events, include the date and location
+                  8. If the user asks about travel routes, mention that they can use the Explore page to plan their journey`
                 }
               ]
             }
@@ -108,6 +227,8 @@ const AiChat = () => {
       
       if (data.candidates && data.candidates[0] && data.candidates[0].content) {
         responseText = data.candidates[0].content.parts[0].text;
+        // Process the response to add interactive elements
+        responseText = processResponse(responseText);
       }
       
       const aiResponse = {
@@ -129,6 +250,16 @@ const AiChat = () => {
       setMessages(prev => [...prev, errorResponse]);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // Handle clicks on location links in AI responses
+  const handleLocationClick = (e) => {
+    const target = e.target;
+    if (target.tagName === 'A' && target.pathname.startsWith('/explore/')) {
+      e.preventDefault();
+      const locationId = target.pathname.split('/').pop();
+      navigateToExplore(parseInt(locationId));
     }
   };
   
@@ -248,6 +379,38 @@ const AiChat = () => {
             )}
           </div>
           
+          {/* Explore Map Button */}
+          <div className="mt-6">
+            <Link 
+              to="/explore" 
+              className="flex items-center justify-center w-full bg-sky-600 hover:bg-sky-500 text-white py-2 px-4 rounded-full transition-colors"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+              </svg>
+              Explore Map
+            </Link>
+          </div>
+
+          {/* Quick Access to Events */}
+          <div className="mt-6">
+            <h3 className="text-sky-400 mb-3 font-medium">Upcoming Events</h3>
+            <div className="space-y-2">
+              {events.slice(0, 3).map(event => (
+                <div key={event.id} className="bg-slate-800 bg-opacity-40 rounded-lg p-3 hover:bg-slate-700 transition-colors cursor-pointer">
+                  <h4 className="font-medium text-white">{event.name}</h4>
+                  <p className="text-sm text-sky-200">{event.date} • {event.location}</p>
+                </div>
+              ))}
+              <Link to="/" className="text-sm text-sky-200 hover:text-white flex items-center">
+                View all events
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </Link>
+            </div>
+          </div>
+          
           {/* Powered by section */}
           <div className="mt-auto pt-6">
             <div className="w-full flex items-center justify-center space-x-2 bg-sky-800 bg-opacity-40 text-white rounded-full py-2">
@@ -295,7 +458,7 @@ const AiChat = () => {
                     </div>
                   )}
                   
-                  <div className="markdown-content">
+                  <div className="markdown-content" onClick={handleLocationClick}>
                     {message.sender === 'ai' ? (
                       <ReactMarkdown>{message.text}</ReactMarkdown>
                     ) : (
