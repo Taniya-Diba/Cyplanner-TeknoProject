@@ -647,9 +647,9 @@ const TravelGuide = () => {
                     <button className="bg-sky-600 hover:bg-sky-700 text-white font-medium py-2 px-6 rounded-lg transition duration-200">
                       Get Directions
                     </button>
-                    <button className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-6 rounded-lg transition duration-200">
+{/*                    <button className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-6 rounded-lg transition duration-200">
                       Download Plan Details
-                    </button>
+                    </button>*/}
                   </div>
                 </div>
               </div>
