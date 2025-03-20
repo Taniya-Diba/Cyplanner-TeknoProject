@@ -2,8 +2,7 @@
  * Extended destination data for timeline displays
  */
 
-// Export all data with named exports
-export
+// Kyrenia Castle & Harbor logistics data
 export const kyreniaLogistics = {
   flights: [
     {
@@ -204,7 +203,7 @@ export const varoshaMilestones = [
   }
 ];
 
-// Also export as default object for convenience
+// Export as default object for convenience
 export default {
   kyreniaLogistics,
   kyreniaMilestones,
