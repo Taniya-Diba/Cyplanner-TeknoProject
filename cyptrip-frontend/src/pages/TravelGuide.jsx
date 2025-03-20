@@ -5,6 +5,7 @@ import IMG_Kyrena from '../assets/images/IMG/kyrenia.jpg'
 import IMG_Cruise from '../assets/images/IMG/cruise.jpg'
 import IMG_Salamis from '../assets/images/IMG/Salamis Ruins, Northern Cyprus.jpg'
 import IMG_Bellapais from '../assets/images/IMG/Bellapais Abbey.jpg'
+import IMG_GoldBeach from '../assets/images/IMG/goldenbeach.jpg'
 
 import { 
   FaAward, 
@@ -245,7 +246,7 @@ const destinations = [
   {
     id: 4,
     title: "Golden Beach",
-    image: "/src/assets/images/destinations/golden-beach.jpg",
+    image: IMG_GoldBeach,
     rating: 4.9,
     duration: "2 days",
     travellers: "4 travellers",
