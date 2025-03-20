@@ -155,8 +155,8 @@ const Deals = () => {
       priceCategory: "low"
     },
     {
-      name: IMG_HIST, 
-      image: "/api/placeholder/400/250", 
+      name: "Beach Tours", 
+      image: IMG_HIST, 
       count: "+150 Tours",
       description: "Journey through time with our historical tours covering ancient ruins, medieval castles, and archaeological sites with expert historians.",
       location: "All Cyprus",
