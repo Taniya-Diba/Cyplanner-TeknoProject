@@ -638,7 +638,7 @@ const TravelGuide = () => {
                 </div>
                 
                 <div>
-                  <h3 className="text-xl font-bold text-gray-800 mb-4">Itinerary</h3>
+                  <h3 className="text-xl font-bold text-gray-800 mb-4">Plan Details</h3>
                   <div className="bg-gray-50 rounded-lg p-4 text-gray-700 mb-6">
                     <p>Follow {selectedDestination.author.name}'s detailed itinerary through {selectedDestination.title}. This carefully planned journey highlights the best experiences and hidden gems.</p>
                   </div>
