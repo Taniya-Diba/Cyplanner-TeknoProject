@@ -11,6 +11,9 @@ import IMG_NIM from '../assets/images/IMG/reservation2.jpg'
 import IMG_BOAT from '../assets/images/IMG/boat trip.jpg'
 import IMG_BUS from '../assets/images/IMG/bus tpurs.jpg'
 import IMG_RENT from '../assets/images/IMG/rent cars.jpg'
+import IMG_CITYT from '../assets/images/IMG/lefkosa.jpg'
+import IMG_RENT from '../assets/images/IMG/rent cars.jpg'
+import IMG_RENT from '../assets/images/IMG/rent cars.jpg'
 
 const Deals = () => {
   const [activeTab, setActiveTab] = useState('all');
