@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import LOGO from '../assets/images/IMG/logo.png'
+import LOGO from '../assets/images/IMG/logo.png';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
   
   const navItems = [
-    { name: 'Home', path: '/' },
+    { name: 'Home', path: '/home' },
     { name: 'AI Chat', path: '/ai-chat' },
     { name: 'Deals', path: '/deals' },
     { name: 'Explore', path: '/explore' },
@@ -41,14 +41,12 @@ const Navbar = () => {
           ))}
         </div>
         
-        {/* Authentication Buttons */}
-        <div className="hidden md:flex items-center space-x-4">
-          <Link to="/signin">
-          <button className="text-sm text-white hover:text-sky-400 transition">Sign in</button>
-          </Link>
-          <Link to="/signup">
-          <button className="text-sm text-slate-900 bg-sky-400 hover:bg-sky-200 px-4 py-2 rounded-md transition">Sign up</button>
-          </Link>
+        {/* User Profile - Replacing Authentication Buttons */}
+        <div className="hidden md:flex items-center space-x-3">
+          <span className="text-sm text-white">Emad</span>
+          <div className="w-8 h-8 bg-sky-500 rounded-full flex items-center justify-center text-white">
+            <span className="text-sm font-medium">ER</span>
+          </div>
         </div>
         
         {/* Mobile menu button */}
@@ -77,8 +75,13 @@ const Navbar = () => {
               </NavLink>
             ))}
             <hr className="border-slate-700" />
-            <button className="text-sm text-white hover:text-sky-400 py-1 transition">Login</button>
-            <button className="text-sm text-slate-900 bg-sky-400 hover:bg-sky-500 px-4 py-2 rounded-md transition">Sign up</button>
+            {/* User Profile in Mobile Menu */}
+            <div className="flex items-center space-x-2 py-2">
+              <div className="w-8 h-8 bg-sky-500 rounded-full flex items-center justify-center text-white">
+                <span className="text-sm font-medium">ER</span>
+              </div>
+              <span className="text-sm text-white">Emad</span>
+            </div>
           </div>
         </div>
       )}
