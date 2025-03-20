@@ -1,5 +1,16 @@
 import React, { useState } from 'react';
 import Layout from '../components/Layout';
+import IMG_MERIT from '../assets/images/IMG/merit hotel.jpg'
+import IMG_VUNI from '../assets/images/IMG/Vuni Palace Hotel.jpg'
+import IMG_LORD from '../assets/images/IMG/lord_s palace hotel SPA Casino.jpg'
+import IMG_PIA from '../assets/images/IMG/Hotel Pia Bella.jpg'
+import IMG_BLU from '../assets/images/IMG/blue song restaurants.webp'
+import IMG_CAL from '../assets/images/IMG/Califorian Restaurant.webp'
+import IMG_EZC from '../assets/images/IMG/Ezic.webp'
+import IMG_NIM from '../assets/images/IMG/reservation2.jpg'
+import IMG_BOAT from '../assets/images/IMG/boat trip.jpg'
+import IMG_BUS from '../assets/images/IMG/bus tpurs.jpg'
+import IMG_RENT from '../assets/images/IMG/rent cars.jpg'
 
 const Deals = () => {
   const [activeTab, setActiveTab] = useState('all');
@@ -13,7 +24,7 @@ const Deals = () => {
     {
       name: "Merit Royal Diamond Hotel", 
       location: "Kyrenia", 
-      image: "/api/placeholder/300/200", 
+      image: IMG_MERIT, 
       duration: "1 night",
       guests: "3 Adults",
       features: ["SPA & Casino"],
@@ -25,9 +36,9 @@ const Deals = () => {
       priceCategory: "high"
     },
     {
-      name: "Yumi Palace Hotel", 
+      name: "Vuni Palace Hotel", 
       location: "Kyrenia", 
-      image: "/api/placeholder/300/200", 
+      image: IMG_VUNI, 
       duration: "2 night",
       guests: "3 Adults",
       features: ["SPA & Casino"],
@@ -41,7 +52,7 @@ const Deals = () => {
     {
       name: "Lord's Palace Hotel SPA Casino", 
       location: "Kyrenia", 
-      image: "/api/placeholder/300/200", 
+      image: IMG_LORD, 
       duration: "1 night",
       guests: "3 Adults",
       features: ["SPA & Casino"],
@@ -55,7 +66,7 @@ const Deals = () => {
     {
       name: "Garden Resort Hotel", 
       location: "Famagusta", 
-      image: "/api/placeholder/300/200", 
+      image: IMG_PIA, 
       duration: "3 nights",
       guests: "2 Adults",
       features: ["Garden", "Pool"],
@@ -72,7 +83,7 @@ const Deals = () => {
     {
       name: "Blue Song Restaurant", 
       location: "Kyrenia", 
-      image: "/api/placeholder/300/200", 
+      image: IMG_BLU, 
       features: ["Food/Drinks", "Beach"],
       rating: 4,
       reviews: 648,
@@ -85,7 +96,7 @@ const Deals = () => {
     {
       name: "California Gold Restaurant", 
       location: "Famagusta", 
-      image: "/api/placeholder/300/200", 
+      image: IMG_CAL, 
       features: ["Food/Drinks", "Beach"],
       rating: 4,
       reviews: 505,
@@ -98,7 +109,7 @@ const Deals = () => {
     {
       name: "Eric Restaurant", 
       location: "Nicosia", 
-      image: "/api/placeholder/300/200", 
+      image: IMG_EZC, 
       features: ["Food/Drinks", "Beach"],
       rating: 4,
       reviews: 230,
@@ -109,9 +120,9 @@ const Deals = () => {
       priceCategory: "low"
     },
     {
-      name: "Luxury Dining Experience", 
+      name: "Nima Restaurant & Lounge Bar", 
       location: "Kyrenia", 
-      image: "/api/placeholder/300/200", 
+      image: IMG_NIM, 
       features: ["Fine Dining", "View"],
       rating: 5,
       reviews: 430,
@@ -148,45 +159,45 @@ const Deals = () => {
       location: "All Cyprus",
       priceCategory: "medium"
     },
-    {
-      name: "Luxury Yacht Cruise", 
-      image: "/api/placeholder/400/250", 
-      count: "+10 Tours",
-      description: "Experience the ultimate in luxury with our private yacht cruises. Champagne, gourmet catering, and personalized service included.",
-      location: "Kyrenia Harbor",
-      priceCategory: "high"
-    }
+    // {
+    //   name: "Luxury Yacht Cruise", 
+    //   image: "/api/placeholder/400/250", 
+    //   count: "+10 Tours",
+    //   description: "Experience the ultimate in luxury with our private yacht cruises. Champagne, gourmet catering, and personalized service included.",
+    //   location: "Kyrenia Harbor",
+    //   priceCategory: "high"
+    // }
   ];
 
   const transportationData = [
     {
       name: "Boat Trips", 
-      image: "/api/placeholder/400/250",
+      image: IMG_BOAT,
       description: "Cruise the crystal-clear waters of the Mediterranean with our boat trips. Half-day and full-day options available with refreshments on board.",
       location: "Coastal Areas",
       priceCategory: "medium"
     },
     {
       name: "Bus Tours", 
-      image: "/api/placeholder/400/250",
+      image: IMG_BUS,
       description: "Comfortable, air-conditioned buses with professional guides taking you to the most interesting spots across the island.",
       location: "All Cyprus",
       priceCategory: "low"
     },
     {
       name: "Rent Cars", 
-      image: "/api/placeholder/400/250",
+      image: IMG_RENT,
       description: "Freedom to explore at your own pace. Wide range of vehicles from economy to luxury with comprehensive insurance options.",
       location: "All Airports and Major Cities",
       priceCategory: "varies"
     },
-    {
-      name: "Luxury Transfers", 
-      image: "/api/placeholder/400/250",
-      description: "Premium transportation with chauffeur-driven luxury vehicles. Available for airport transfers, special events, or full-day private tours.",
-      location: "All Cyprus",
-      priceCategory: "high"
-    }
+    // {
+    //   name: "Luxury Transfers", 
+    //   image: "/api/placeholder/400/250",
+    //   description: "Premium transportation with chauffeur-driven luxury vehicles. Available for airport transfers, special events, or full-day private tours.",
+    //   location: "All Cyprus",
+    //   priceCategory: "high"
+    // }
   ];
 
   // Filter function for search and budget filtering
