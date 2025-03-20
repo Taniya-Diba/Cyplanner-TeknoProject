@@ -48,7 +48,7 @@ const destinations = [
         type: "Non-stop",
         extendedContent: "Started the day with a guided tour of the castle's main halls and battlements. The views from the top were breathtaking, offering panoramic vistas of the Mediterranean and the charming harbor below.",
         achievement: "Discovered a hidden passage that most tourists miss, leading to an ancient cistern",
-        image: "/src/assets/images/destinations/kyrenia-castle-interior.jpg",
+        image: IMG_Kyrena,
         location: "Kyrenia, Cyprus"
       },
       {
