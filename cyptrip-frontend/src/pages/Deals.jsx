@@ -12,7 +12,7 @@ import IMG_BOAT from '../assets/images/IMG/boat trip.jpg'
 import IMG_BUS from '../assets/images/IMG/bus tpurs.jpg'
 import IMG_RENT from '../assets/images/IMG/rent cars.jpg'
 import IMG_CITYT from '../assets/images/IMG/lefkosa.jpg'
-import IMG_BECT from '../assets/images/IMG/beach tours.jpg'
+import IMG_BECT from '../assets/images/IMG/beachtours.jpg'
 import IMG_HIST from '../assets/images/IMG/historical.jpg'
 
 const Deals = () => {
