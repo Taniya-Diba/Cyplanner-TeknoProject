@@ -204,7 +204,7 @@ const destinations = [
   {
     id: 3,
     title: "Bellapais Abbey",
-    image: "/src/assets/images/destinations/bellapais-abbey.jpg",
+    image: IMG_Bellapais,
     rating: 4.7,
     duration: "1 day",
     travellers: "1 traveller",
