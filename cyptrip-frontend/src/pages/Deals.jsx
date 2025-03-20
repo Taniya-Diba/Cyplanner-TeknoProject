@@ -140,7 +140,7 @@ const Deals = () => {
   const activitiesData = [
     {
       name: "City Tours", 
-      image: "/api/placeholder/400/250", 
+      image: IMG_CITYT, 
       count: "+50 Tours",
       description: "Explore vibrant city centers with knowledgeable local guides. Discover hidden gems, historical landmarks, and authentic local culture.",
       location: "Multiple Locations",
