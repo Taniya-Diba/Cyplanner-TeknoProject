@@ -59,7 +59,7 @@ const destinations = [
         type: "Non-stop",
         extendedContent: "Boarded a wooden fishing boat for a two-hour cruise of the harbor and coastline. The captain shared fascinating stories about the maritime history of Kyrenia and pointed out hidden caves and beaches only accessible by water.",
         achievement: "Spotted dolphins playing near our boat - a rare sighting according to the locals",
-        image: "/src/assets/images/destinations/kyrenia-harbor.jpg",
+        image: IMG_Cruise,
         location: "Kyrenia Harbor, Cyprus"
       }
     ],
