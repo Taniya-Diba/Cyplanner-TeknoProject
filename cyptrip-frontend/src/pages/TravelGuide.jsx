@@ -640,7 +640,7 @@ const TravelGuide = () => {
                 <div>
                   <h3 className="text-xl font-bold text-gray-800 mb-4">Plan Details</h3>
                   <div className="bg-gray-50 rounded-lg p-4 text-gray-700 mb-6">
-                    <p>Follow {selectedDestination.author.name}'s detailed itinerary through {selectedDestination.title}. This carefully planned journey highlights the best experiences and hidden gems.</p>
+                    <p>Follow {selectedDestination.author.name}'s detailed Plan Details through {selectedDestination.title}. This carefully planned journey highlights the best experiences and hidden gems.</p>
                   </div>
                   
                   <div className="flex justify-between mb-4">
@@ -648,7 +648,7 @@ const TravelGuide = () => {
                       Get Directions
                     </button>
                     <button className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-6 rounded-lg transition duration-200">
-                      Download Itinerary
+                      Download Plan Details
                     </button>
                   </div>
                 </div>
