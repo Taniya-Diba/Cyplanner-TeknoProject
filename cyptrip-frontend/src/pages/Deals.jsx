@@ -818,21 +818,21 @@ const RestaurantPopup = ({ restaurant }) => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="bg-slate-50 p-3 rounded-xl">
               <div className="h-24 rounded-lg overflow-hidden mb-2">
-                <img src={} alt="Dish" className="w-full h-full object-cover" />
+                <img src={IMG_DISH1} alt="Dish" className="w-full h-full object-cover" />
               </div>
               <h4 className="font-medium">Signature Dish 1</h4>
               <p className="text-sm text-gray-600">$18</p>
             </div>
             <div className="bg-slate-50 p-3 rounded-xl">
               <div className="h-24 rounded-lg overflow-hidden mb-2">
-                <img src={} alt="Dish" className="w-full h-full object-cover" />
+                <img src={IMG_DISH2} alt="Dish" className="w-full h-full object-cover" />
               </div>
               <h4 className="font-medium">Signature Dish 2</h4>
               <p className="text-sm text-gray-600">$22</p>
             </div>
             <div className="bg-slate-50 p-3 rounded-xl">
               <div className="h-24 rounded-lg overflow-hidden mb-2">
-                <img src={} alt="Dish" className="w-full h-full object-cover" />
+                <img src={IMG_DISH3} alt="Dish" className="w-full h-full object-cover" />
               </div>
               <h4 className="font-medium">Signature Dish 3</h4>
               <p className="text-sm text-gray-600">$15</p>
