@@ -257,7 +257,7 @@ const destinations = [
     author: {
       name: "David M.",
       description: "Beach Expert",
-      image: "/src/assets/images/authors/david.jpg"
+      image: IMG_PER
     },
     description: "Pristine sandy beach with crystal-clear waters, perfect for swimming and relaxation.",
     milestones: [
