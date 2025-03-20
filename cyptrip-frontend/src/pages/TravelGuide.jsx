@@ -33,9 +33,9 @@ const destinations = [
     travellers: "1 traveller",
     date: "Mar 21 - 23",
     author: {
-      name: "Maria K.",
+      name: "Ali K.",
       description: "Travel Blogger",
-      image: "IMG_PER"
+      image: IMG_PER
     },
     description: "A magnificent 16th-century castle overlooking the picturesque harbor of Kyrenia.",
     extendedDescription: "Kyrenia Castle is a stunning historical site located at the eastern end of the old harbor in Kyrenia, Northern Cyprus. Built initially by the Byzantines to guard the city against Arab raids, the castle was later expanded by the Lusignans and Venetians. The current massive structure dates primarily from the Venetian period. Inside the castle, visitors can explore ancient dungeons, a shipwreck museum housing a well-preserved 4th-century Greek merchant vessel, and enjoy panoramic views of the Mediterranean from its battlements. The adjacent Kyrenia Harbor is lined with charming cafes and restaurants, offering a perfect blend of history and relaxation.",
