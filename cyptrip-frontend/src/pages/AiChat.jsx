@@ -1,90 +1,39 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import Layout from '../components/Layout.jsx';
 import AiLOGO from '../assets/images/IMG/aichatbotLOGO.png';
-import ReactMarkdown from 'react-markdown';
 
-// Import location data from ExplorePage
-const recommendationData = [
-  {
-    id: 1,
-    name: "Salamis Ruins",
-    lat: 35.0381,
-    lng: 33.9880,
-    description: "Ancient ruins of Salamis, a spectacular archaeological site with Roman and Byzantine remains, including a theater, gymnasium, and bath complex.",
-    rating: 4.7,
-    tags: ["Historical", "Ancient", "Archaeological"]
-  },
-  {
-    id: 2,
-    name: "Kyrenia Castle",
-    lat: 35.3403,
-    lng: 33.3195,
-    description: "Kyrenia Castle is a 16th-century castle built by the Venetians over a previous Crusader fortification. Within its walls lies a twelfth-century chapel showing reused late Roman capitals, and the Shipwreck Museum.",
-    rating: 4.5,
-    tags: ["Castle", "Museum", "Historical"]
-  },
-  {
-    id: 3,
-    name: "Varosha",
-    lat: 35.1186,
-    lng: 33.9472,
-    description: "Once a modern tourist area, Varosha became an abandoned district after the Turkish invasion of Cyprus in 1974. Parts of it have recently been reopened to visitors.",
-    rating: 4.2,
-    tags: ["Historical", "Urban", "Beach"]
-  },
-  {
-    id: 4,
-    name: "Bellapais Abbey",
-    lat: 35.2881,
-    lng: 33.3187,
-    description: "A stunning Gothic abbey ruins located in the northern part of Cyprus. Built in the 13th century, it offers beautiful views of the surrounding landscape.",
-    rating: 4.8,
-    tags: ["Abbey", "Historical", "Architecture"]
-  },
-];
+// Import shared data and components
+import { 
+  locationData, 
+  eventsData, 
+  API_KEYS, 
+  getLocationsByTags 
+} from '../data/SharedData';
+import ChatMessage from '../components/chat/ChatMessage';
+import ChatInput from '../components/chat/ChatInput';
+import InterestSelector from '../components/chat/InterestSelector';
+import LoadingIndicator from '../components/ui/LoadingIndicator';
+import ChatTimeline from '../components/chat/ChatTimeline';
+import MilestonesTimeline from '../components/chat/MilestonesTimeline';
+import TravelLogistics from '../components/chat/TravelLogistics';
+import { callGeminiAPI, processAIResponse } from '../utils/apiHelpers';
 
-// Import events data from Home
-const events = [
-  { 
-    id: 1, 
-    name: 'Daylight Festival', 
-    date: '31 March', 
-    price: '350 TL', 
-    description: 'Experience the best electronic music with international and local DJs at this beachside festival.',
-    location: 'Escape Beach Club, Kyrenia',
-  },
-  { 
-    id: 2, 
-    name: 'Collectivebeat Comedy', 
-    date: '31 March', 
-    price: '350 TL', 
-    description: 'A night of laughs with local and international stand-up comedians.',
-    location: 'Colony Hotel, Kyrenia',
-  },
-  { 
-    id: 3, 
-    name: 'Korhan Sayginer', 
-    date: '12 April', 
-    price: '4000 TL', 
-    description: 'Witness world champion billiards player Korhan Sayginer demonstrate his incredible skills.',
-    location: 'Merit Royal Hotel, Kyrenia',
-  },
-  { 
-    id: 4, 
-    name: 'Zeybek Halk', 
-    date: '20 April', 
-    price: '1575 TL', 
-    description: 'Celebrate traditional Turkish and Cypriot folk dancing with this colorful and energetic performance.',
-    location: 'Rauf Raif Denktaş Culture and Congress Center, Nicosia',
-  },
-];
+// Import extended destination data
+import {
+  kyreniaLogistics,
+  kyreniaMilestones,
+  salamisMilestones,
+  bellapaisMilestones,
+  varoshaMilestones
+} from '../data/DestinationData';
 
+/**
+ * AiChat component - Main chatbot interface with Cyprus travel assistance
+ */
 const AiChat = () => {
-  // State declarations
+  // State declarations with meaningful default values
   const [messages, setMessages] = useState([]);
-  const [messageInput, setMessageInput] = useState('');
-  const [newInterest, setNewInterest] = useState('');
   const [interests, setInterests] = useState([
     { id: 1, name: 'Culture' },
     { id: 2, name: 'Food' },
@@ -92,15 +41,16 @@ const AiChat = () => {
     { id: 4, name: 'Beaches' }
   ]);
   const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
-  
-  // Hardcoded API key (replace with your actual Gemini API key)
-  const apiKey = "AIzaSyDe6vVwe0mQhv_s2qw5uLBos-99I4aXWOE"; // TODO: Replace with your actual API key
+  const [selectedFilter, setSelectedFilter] = useState({
+    duration: 'Duration',
+    budget: 'Budget',
+    group: 'Group'
+  });
   
   // Initial greeting message on component mount
   useEffect(() => {
     const initialGreeting = {
-      id: 1,
+      id: 'greeting-1',
       sender: 'ai',
       text: "Hi! I'm your Cyprus Travel Assistant. What kind of experience are you looking for?",
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
@@ -108,160 +58,156 @@ const AiChat = () => {
     setMessages([initialGreeting]);
   }, []);
   
-  const removeInterest = (id) => {
-    setInterests(interests.filter(interest => interest.id !== id));
-  };
+  // Interest management functions
+  const addInterest = useCallback((interestName) => {
+    if (!interestName.trim()) return;
+    
+    const newId = interests.length > 0 
+      ? Math.max(...interests.map(i => i.id)) + 1 
+      : 1;
+      
+    setInterests(prev => [...prev, { id: newId, name: interestName.trim() }]);
+  }, [interests]);
   
-  const clearAllInterests = () => {
+  const removeInterest = useCallback((id) => {
+    setInterests(prev => prev.filter(interest => interest.id !== id));
+  }, []);
+  
+  const clearAllInterests = useCallback(() => {
     setInterests([]);
-  };
+  }, []);
   
-  const addInterest = (e) => {
-    e.preventDefault();
-    if (!newInterest.trim()) return;
-    
-    const newId = interests.length > 0 ? Math.max(...interests.map(i => i.id)) + 1 : 1;
-    setInterests([...interests, { id: newId, name: newInterest.trim() }]);
-    setNewInterest('');
-  };
-
-  // Function to navigate to the Explore page with a location ID
-  const navigateToExplore = (locationId) => {
-    navigate(`/explore/${locationId}`);
-  };
+  // Filter change handler
+  const handleFilterChange = useCallback((filterType, value) => {
+    setSelectedFilter(prev => ({
+      ...prev,
+      [filterType]: value
+    }));
+  }, []);
   
-  // Function to parse AI response and add interactive links
-  const processResponse = (text) => {
-    // Check for location mentions and add links
-    recommendationData.forEach(location => {
-      const locationRegex = new RegExp(`\\b${location.name}\\b`, 'g');
-      text = text.replace(locationRegex, `[${location.name}](/explore/${location.id})`);
-    });
-    
-    // Check for event mentions and add links
-    events.forEach(event => {
-      const eventRegex = new RegExp(`\\b${event.name}\\b`, 'g');
-      text = text.replace(eventRegex, `[${event.name}](# "Event: ${event.date} at ${event.location}")`);
-    });
-    
-    return text;
-  };
-  
-  const handleSendMessage = async (e) => {
-    e.preventDefault();
-    if (!messageInput.trim()) return;
-    
+  // Handle sending a message to the AI
+  const handleSendMessage = useCallback(async (messageText) => {
+    // Create and add user message to chat
     const newMessage = {
-      id: messages.length + 1,
+      id: `user-${Date.now()}`,
       sender: 'user',
-      text: messageInput,
+      text: messageText,
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
     
-    setMessages([...messages, newMessage]);
-    setMessageInput('');
+    setMessages(prev => [...prev, newMessage]);
     setIsLoading(true);
     
-    // Get selected interests
-    const selectedInterests = interests.map(i => i.name);
-    
     try {
-      // Location information to include in prompt
-      const locationsInfo = recommendationData.map(loc => 
+      // Get selected interests
+      const selectedInterests = interests.map(i => i.name);
+      
+      // Get relevant locations based on interests
+      const relevantLocations = getLocationsByTags(selectedInterests);
+      
+      // Format location information for the AI prompt
+      const locationsInfo = relevantLocations.map(loc => 
         `${loc.name}: ${loc.description} Tags: ${loc.tags.join(', ')} Location: lat ${loc.lat}, lng ${loc.lng}`
       ).join('\n');
       
-      // Events information to include in prompt
-      const eventsInfo = events.map(event => 
+      // Format events information for the AI prompt
+      const eventsInfo = eventsData.map(event => 
         `${event.name}: ${event.date}, ${event.price} at ${event.location}. ${event.description}`
       ).join('\n');
       
+      // Build comprehensive prompt for Gemini
+      const prompt = `You are a helpful Cyprus travel assistant. Be engaging and use emoji in your responses along with markdown formatting to emphasize key points.
+      
+      User interests: ${selectedInterests.join(', ')}
+      Selected filters: Duration: ${selectedFilter.duration}, Budget: ${selectedFilter.budget}, Group: ${selectedFilter.group}
+      Recent conversation: ${JSON.stringify(messages.slice(-3))}
+      User query: ${messageText}
+      
+      Available destinations in North Cyprus:
+      ${locationsInfo}
+      
+      Upcoming events in North Cyprus:
+      ${eventsInfo}
+      
+      Important: 
+      1. Include relevant emoji in your responses to make them engaging
+      2. Use markdown for headers, bullet points, and to highlight important information
+      3. Make suggestions based on user interests and filters
+      4. If suggesting places, include emoji for the type of place (beach 🏖️, restaurant 🍽️, historical site 🏛️, etc.)
+      5. Format your response in a clear, visually appealing way with markdown
+      6. When mentioning specific destinations (like Salamis Ruins, Kyrenia Castle, Varosha, or Bellapais Abbey), mention that the user can click on the name to view it on the map
+      7. When mentioning events, include the date and location
+      8. If the user asks about travel routes, mention that they can use the Explore page to plan their journey
+      9. Keep your response concise but informative`;
+      
       // Call Gemini API
-      const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-goog-api-key': apiKey,
-        },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [
-                {
-                  text: `You are a helpful Cyprus travel assistant. Be engaging and use emoji in your responses along with markdown formatting to emphasize key points.
-                  
-                  User interests: ${selectedInterests.join(', ')}
-                  Recent conversation: ${JSON.stringify(messages.slice(-3))}
-                  User query: ${messageInput}
-                  
-                  Available destinations in North Cyprus:
-                  ${locationsInfo}
-                  
-                  Upcoming events in North Cyprus:
-                  ${eventsInfo}
-                  
-                  Important: 
-                  1. Include relevant emoji in your responses to make them engaging
-                  2. Use markdown for headers, bullet points, and to highlight important information
-                  3. Make suggestions based on user interests
-                  4. If suggesting places, include emoji for the type of place (beach 🏖️, restaurant 🍽️, historical site 🏛️, etc.)
-                  5. Format your response in a clear, visually appealing way with markdown
-                  6. When mentioning specific destinations (like Salamis Ruins, Kyrenia Castle, Varosha, or Bellapais Abbey), mention that the user can click on the name to view it on the map
-                  7. When mentioning events, include the date and location
-                  8. If the user asks about travel routes, mention that they can use the Explore page to plan their journey`
-                }
-              ]
-            }
-          ],
-          generationConfig: {
-            temperature: 0.7,
-            maxOutputTokens: 800,
-          }
-        }),
-      });
+      const data = await callGeminiAPI({ prompt });
       
-      const data = await response.json();
-      
-      // Extract the response text
+      // Extract and process the response text
       let responseText = "Sorry, I couldn't generate a response. Please try again.";
       
       if (data.candidates && data.candidates[0] && data.candidates[0].content) {
         responseText = data.candidates[0].content.parts[0].text;
         // Process the response to add interactive elements
-        responseText = processResponse(responseText);
+        responseText = processAIResponse(responseText, locationData, eventsData);
       }
       
+      // Create and add AI response to chat
+      // Generate any timeline components based on the message content
+      const timelineComponents = generateTimelineComponents(responseText);
+      
       const aiResponse = {
-        id: messages.length + 2,
+        id: `ai-${Date.now()}`,
         sender: 'ai',
         text: responseText,
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        timelineComponents: timelineComponents
       };
       
       setMessages(prev => [...prev, aiResponse]);
     } catch (error) {
-      console.error("Error calling Gemini API:", error);
+      console.error("Error processing message:", error);
+      
+      // Add error message to chat
       const errorResponse = {
-        id: messages.length + 2,
+        id: `error-${Date.now()}`,
         sender: 'ai',
-        text: "I'm sorry, there was an error processing your request. Please check your API key and try again.",
+        text: "I'm sorry, there was an error processing your request. Please try again in a moment.",
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
+      
       setMessages(prev => [...prev, errorResponse]);
     } finally {
       setIsLoading(false);
     }
+  }, [interests, messages, selectedFilter]);
+  
+  // Filter option components
+  const filterOptions = {
+    duration: ['Duration', '1-3 days', '4-7 days', '1-2 weeks', '2+ weeks'],
+    budget: ['Budget', 'Economy', 'Moderate', 'Luxury'],
+    group: ['Group', 'Solo', 'Couple', 'Family', 'Friends']
   };
-
-  // Handle clicks on location links in AI responses
-  const handleLocationClick = (e) => {
-    const target = e.target;
-    if (target.tagName === 'A' && target.pathname.startsWith('/explore/')) {
-      e.preventDefault();
-      const locationId = target.pathname.split('/').pop();
-      navigateToExplore(parseInt(locationId));
-    }
-  };
+  
+  // Render custom filter select component
+  const renderFilterSelect = (type, options) => (
+    <div className="relative">
+      <select 
+        value={selectedFilter[type]} 
+        onChange={(e) => handleFilterChange(type, e.target.value)}
+        className="w-full appearance-none bg-slate-700 bg-opacity-50 text-white rounded-full py-2 px-4 pr-8 cursor-pointer focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-inner"
+      >
+        {options.map(option => (
+          <option key={option} value={option}>{option}</option>
+        ))}
+      </select>
+      <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+        <svg className="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+        </svg>
+      </div>
+    </div>
+  );
   
   return (
     <Layout>
@@ -282,102 +228,19 @@ const AiChat = () => {
             <h3 className="text-sky-400 mb-3 font-medium">Filter by:</h3>
             
             <div className="space-y-3">
-              <div className="relative">
-                <select className="w-full appearance-none bg-slate-700 bg-opacity-50 text-white rounded-full py-2 px-4 pr-8 cursor-pointer focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-inner">
-                  <option>Duration</option>
-                  <option>1-3 days</option>
-                  <option>4-7 days</option>
-                  <option>1-2 weeks</option>
-                  <option>2+ weeks</option>
-                </select>
-                <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                  <svg className="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
-                  </svg>
-                </div>
-              </div>
-              
-              <div className="relative">
-                <select className="w-full appearance-none bg-slate-700 bg-opacity-50 text-white rounded-full py-2 px-4 pr-8 cursor-pointer focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-inner">
-                  <option>Budget</option>
-                  <option>Economy</option>
-                  <option>Moderate</option>
-                  <option>Luxury</option>
-                </select>
-                <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                  <svg className="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
-                  </svg>
-                </div>
-              </div>
-              
-              <div className="relative">
-                <select className="w-full appearance-none bg-slate-700 bg-opacity-50 text-white rounded-full py-2 px-4 pr-8 cursor-pointer focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-inner">
-                  <option>Group</option>
-                  <option>Solo</option>
-                  <option>Couple</option>
-                  <option>Family</option>
-                  <option>Friends</option>
-                </select>
-                <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                  <svg className="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
-                  </svg>
-                </div>
-              </div>
+              {renderFilterSelect('duration', filterOptions.duration)}
+              {renderFilterSelect('budget', filterOptions.budget)}
+              {renderFilterSelect('group', filterOptions.group)}
             </div>
           </div>
           
           {/* Interests */}
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sky-400 font-medium">My Interests</h3>
-            </div>
-            
-            {/* Add interest form */}
-            <form onSubmit={addInterest} className="mb-4 flex">
-              <input
-                type="text"
-                value={newInterest}
-                onChange={(e) => setNewInterest(e.target.value)}
-                placeholder="Add new interest..."
-                className="flex-1 px-3 py-2 rounded-l-full bg-slate-700 bg-opacity-50 text-white placeholder-gray-300 border-none focus:outline-none focus:ring-1 focus:ring-sky-500 shadow-inner"
-              />
-              <button 
-                type="submit"
-                className="bg-sky-600 hover:bg-sky-500 text-white px-3 py-2 rounded-r-full transition-colors"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
-                </svg>
-              </button>
-            </form>
-            
-            <div className="flex flex-wrap gap-2 mb-4">
-              {interests.map(interest => (
-                <div key={interest.id} className="flex items-center bg-sky-600 bg-opacity-40 text-white text-sm rounded-full px-3 py-1 shadow-md hover:bg-opacity-50 transition-colors">
-                  {interest.name}
-                  <button 
-                    onClick={() => removeInterest(interest.id)}
-                    className="ml-2 text-sky-100 hover:text-white"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                    </svg>
-                  </button>
-                </div>
-              ))}
-            </div>
-            
-            {interests.length > 0 && (
-              <button 
-                onClick={clearAllInterests}
-                className="text-sm text-sky-200 hover:text-white border border-sky-400 px-4 py-1 rounded-full hover:bg-sky-700 hover:bg-opacity-30 transition-all"
-              >
-                Clear All
-              </button>
-            )}
-          </div>
+          <InterestSelector 
+            interests={interests}
+            onAddInterest={addInterest}
+            onRemoveInterest={removeInterest}
+            onClearAll={clearAllInterests}
+          />
           
           {/* Explore Map Button */}
           <div className="mt-6">
@@ -396,7 +259,7 @@ const AiChat = () => {
           <div className="mt-6">
             <h3 className="text-sky-400 mb-3 font-medium">Upcoming Events</h3>
             <div className="space-y-2">
-              {events.slice(0, 3).map(event => (
+              {eventsData.slice(0, 3).map(event => (
                 <div key={event.id} className="bg-slate-800 bg-opacity-40 rounded-lg p-3 hover:bg-slate-700 transition-colors cursor-pointer">
                   <h4 className="font-medium text-white">{event.name}</h4>
                   <p className="text-sm text-sky-200">{event.date} • {event.location}</p>
@@ -435,67 +298,19 @@ const AiChat = () => {
           {/* Messages */}
           <div className="relative flex-1 overflow-y-auto mb-4 space-y-6">
             {messages.map(message => (
-              <div 
+              <ChatMessage 
                 key={message.id} 
-                className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-              >
-                {message.sender === 'ai' && (
-                  <div className="h-8 w-8 rounded-full bg-sky-500 bg-opacity-80 mr-3 overflow-hidden flex-shrink-0 shadow-md">
-                    <img src={AiLOGO} alt="AI" className="h-full w-full object-cover" />
-                  </div>
-                )}
-                
-                <div 
-                  className={`max-w-xl rounded-2xl p-4 shadow-lg ${
-                    message.sender === 'user' 
-                      ? 'bg-gradient-to-br from-sky-600 to-sky-700 text-white' 
-                      : 'bg-white text-slate-800'
-                  }`}
-                >
-                  {message.sender === 'ai' && (
-                    <div className="font-semibold text-sm mb-1">
-                      Cyplaner <span className="font-normal text-sky-700 text-xs">AI</span>
-                    </div>
-                  )}
-                  
-                  <div className="markdown-content" onClick={handleLocationClick}>
-                    {message.sender === 'ai' ? (
-                      <ReactMarkdown>{message.text}</ReactMarkdown>
-                    ) : (
-                      <div className="whitespace-pre-line">{message.text}</div>
-                    )}
-                    {message.action && (
-                      <div className="mt-2">
-                        <a href="#" className="text-sky-600 hover:text-sky-700 hover:underline text-sm font-medium">
-                          {message.action}
-                        </a>
-                      </div>
-                    )}
-                  </div>
-                  
-                  <div className={`text-xs mt-1 text-right ${
-                    message.sender === 'user' ? 'text-sky-200' : 'text-gray-500'
-                  }`}>
-                    {message.time}
-                  </div>
-                </div>
-              </div>
+                message={message} 
+                aiLogo={AiLOGO} 
+              />
             ))}
             
             {/* Loading indicator */}
             {isLoading && (
-              <div className="flex justify-start">
-                <div className="h-8 w-8 rounded-full bg-sky-500 bg-opacity-80 mr-3 overflow-hidden flex-shrink-0 shadow-md">
-                  <img src={AiLOGO} alt="AI" className="h-full w-full object-cover" />
-                </div>
-                <div className="bg-white p-4 rounded-2xl shadow-lg">
-                  <div className="flex space-x-2">
-                    <div className="w-3 h-3 bg-sky-600 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                    <div className="w-3 h-3 bg-sky-600 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                    <div className="w-3 h-3 bg-sky-600 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
-                  </div>
-                </div>
-              </div>
+              <LoadingIndicator 
+                type="chat" 
+                aiLogo={AiLOGO} 
+              />
             )}
           </div>
 
@@ -507,34 +322,10 @@ const AiChat = () => {
           </div>
           
           {/* Message Input */}
-          <form onSubmit={handleSendMessage} className="relative">
-            <input
-              type="text"
-              value={messageInput}
-              onChange={(e) => setMessageInput(e.target.value)}
-              placeholder="Ask about your trip . . ."
-              className="w-full bg-slate-700 bg-opacity-50 text-white placeholder-gray-300 rounded-full py-3 px-6 pr-12 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-lg"
-              disabled={isLoading}
-            />
-            
-            <div className="absolute right-3 top-3 flex space-x-2">
-              <button type="button" className="text-sky-400 hover:text-white transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </button>
-              
-              <button 
-                type="submit" 
-                className={`text-sky-400 hover:text-white transition-colors ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                disabled={isLoading}
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                </svg>
-              </button>
-            </div>
-          </form>
+          <ChatInput 
+            onSendMessage={handleSendMessage}
+            isLoading={isLoading}
+          />
         </div>
       </div>
     </Layout>
