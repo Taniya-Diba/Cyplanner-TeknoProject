@@ -16,7 +16,7 @@ const AboutUs = () => {
 
   const milestones = [
     {
-      year: '2016',
+      year: '2017',
 	//#testingScript
       title: 'Foundation',
       description: 'Our journey began with a small team of travel enthusiasts in Cyprus.',
