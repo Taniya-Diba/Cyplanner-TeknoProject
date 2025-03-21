@@ -48,6 +48,13 @@ const AiChat = () => {
     budget: 'Budget',
     group: 'Group'
   });
+  // Add state for sidebar visibility
+  const [sidebarVisible, setSidebarVisible] = useState(true);
+  
+  // Toggle sidebar visibility
+  const toggleSidebar = () => {
+    setSidebarVisible(!sidebarVisible);
+  };
   
   // Auto-scroll to bottom when messages change
   const scrollToBottom = () => {
@@ -67,6 +74,21 @@ const AiChat = () => {
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
     setMessages([initialGreeting]);
+    
+    // Check if we're on mobile and hide sidebar initially
+    if (window.innerWidth < 768) {
+      setSidebarVisible(false);
+    }
+    
+    // Add resize listener to handle responsive behavior
+    const handleResize = () => {
+      if (window.innerWidth >= 768) {
+        setSidebarVisible(true);
+      }
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
   
   // Interest management functions
@@ -108,6 +130,11 @@ const AiChat = () => {
     
     setMessages(prev => [...prev, newMessage]);
     setIsLoading(true);
+    
+    // If we're on mobile, hide the sidebar to focus on the conversation
+    if (window.innerWidth < 768) {
+      setSidebarVisible(false);
+    }
     
     try {
       // Get selected interests
@@ -274,132 +301,151 @@ const AiChat = () => {
   return (
     <div className="flex h-screen bg-gradient-to-br from-slate-900 to-slate-800 relative overflow-hidden">
       {/* Wave Background */}
-        <div className="absolute w-full h-full opacity-10 pointer-events-none z-0">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" className="absolute bottom-0 w-full">
-            <path fill="#0ea5e9" fillOpacity="1" d="M0,160L48,144C96,128,192,96,288,106.7C384,117,480,171,576,186.7C672,203,768,181,864,154.7C960,128,1056,96,1152,90.7C1248,85,1344,107,1392,117.3L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+      <div className="absolute w-full h-full opacity-10 pointer-events-none z-0">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" className="absolute bottom-0 w-full">
+          <path fill="#0ea5e9" fillOpacity="1" d="M0,160L48,144C96,128,192,96,288,106.7C384,117,480,171,576,186.7C672,203,768,181,864,154.7C960,128,1056,96,1152,90.7C1248,85,1344,107,1392,117.3L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+        </svg>
+      </div>
+
+      {/* Mobile Toggle Button - only visible on mobile */}
+      <button 
+        onClick={toggleSidebar}
+        className={`md:hidden fixed top-4 ${sidebarVisible ? 'left-[18rem]' : 'left-4'} z-50 bg-sky-700 text-white p-2 rounded-full shadow-lg transition-all duration-300`}
+        aria-label={sidebarVisible ? "Hide sidebar" : "Show sidebar"}
+      >
+        {sidebarVisible ? (
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
           </svg>
-        </div>
+        ) : (
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
+          </svg>
+        )}
+      </button>
 
-        {/* Sidebar */}
-        <div className="w-80 bg-slate-900 bg-opacity-70 backdrop-blur-sm p-6 flex flex-col z-10 shadow-xl overflow-y-auto">
-          {/* Back to Home Button */}
-          <div className="mb-4">
-            <Link 
-              to="/" 
-              className="flex items-center text-sky-400 hover:text-sky-300 transition-colors"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
-              </svg>
-              Back to Home
-            </Link>
-          </div>
-          
-          <h2 className="text-2xl font-semibold text-white mb-6">Plan your perfect trip</h2>
-          
-          {/* Filters */}
-          <div className="mb-8">
-            <h3 className="text-sky-400 mb-3 font-medium">Filter by:</h3>
-            
-            <div className="space-y-3">
-              {renderFilterSelect('duration', filterOptions.duration)}
-              {renderFilterSelect('budget', filterOptions.budget)}
-              {renderFilterSelect('group', filterOptions.group)}
-            </div>
-          </div>
-          
-          {/* Interests */}
-          <InterestSelector 
-            interests={interests}
-            onAddInterest={addInterest}
-            onRemoveInterest={removeInterest}
-            onClearAll={clearAllInterests}
-          />
-
-          {/* Quick Access to Events */}
-          <div className="mt-6">
-            <h3 className="text-sky-400 mb-3 font-medium">Upcoming Events</h3>
-            <div className="space-y-2">
-              {eventsData.slice(0, 3).map(event => (
-                <div key={event.id} className="bg-slate-800 bg-opacity-40 rounded-lg p-3 hover:bg-slate-700 transition-colors cursor-pointer">
-                  <h4 className="font-medium text-white">{event.name}</h4>
-                  <p className="text-sm text-sky-200">{event.date} • {event.location}</p>
-                </div>
-              ))}
-              <Link to="/" className="text-sm text-sky-200 hover:text-white flex items-center">
-                View all events
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
-                </svg>
-              </Link>
-            </div>
-          </div>
-          
-          {/* Spacer before powered by section */}
-          <div className="py-6"></div>
+      {/* Sidebar - with mobile responsive behavior */}
+      <div 
+        className={`${sidebarVisible ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 w-72 md:w-80 bg-slate-900 bg-opacity-70 backdrop-blur-sm p-6 flex flex-col z-10 shadow-xl overflow-y-auto fixed md:sticky top-0 h-screen transition-transform duration-300`}
+      >
+        {/* Back to Home Button */}
+        <div className="mb-4">
+          <Link 
+            to="/" 
+            className="flex items-center text-sky-400 hover:text-sky-300 transition-colors"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
+            </svg>
+            Back to Home
+          </Link>
         </div>
         
-        {/* Main Chat Area */}
-        <div className="flex-1 flex flex-col p-6 overflow-hidden z-10 bg-slate-800 bg-opacity-30 backdrop-blur-sm">
-          {/* Powered by Gemini - positioned at top right */}
-          <div className="absolute top-4 right-4 z-20">
-            <div className="flex items-center space-x-2 bg-sky-800 text-white rounded-full py-2 px-4 shadow-lg">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 18.5a6.5 6.5 0 1 0 0-13 6.5 6.5 0 0 0 0 13Z"></path>
-                <path d="M12 22v-3.5"></path>
-                <path d="M12 2v3.5"></path>
-                <path d="M4.22 19.78l2.12-2.12"></path>
-                <path d="m19.78 4.22-2.12 2.12"></path>
-                <path d="M2 12h3.5"></path>
-                <path d="M22 12h-3.5"></path>
-                <path d="M4.22 4.22l2.12 2.12"></path>
-                <path d="m19.78 19.78-2.12-2.12"></path>
-              </svg>
-              <span>Powered by Gemini 1.5</span>
-            </div>
-          </div>
+        <h2 className="text-2xl font-semibold text-white mb-6">Plan your perfect trip</h2>
+        
+        {/* Filters */}
+        <div className="mb-8">
+          <h3 className="text-sky-400 mb-3 font-medium">Filter by:</h3>
           
-          {/* Messages */}
-          <div className="relative flex-1 overflow-y-auto mb-4 space-y-6 flex flex-col items-center">
-            <div className="w-full max-w-3xl">
-              {messages.map(message => (
-                <div key={message.id} className="mb-6">
-                  <ChatMessage 
-                    message={message} 
-                    aiLogo={AiLOGO} 
-                  />
-                </div>
-              ))}
-              
-              {/* Loading indicator */}
-              {isLoading && (
-                <div className="mb-6">
-                  <LoadingIndicator 
-                    type="chat" 
-                    aiLogo={AiLOGO} 
-                  />
-                </div>
-              )}
-            </div>
-            
-            {/* Invisible element for auto-scrolling */}
-            <div ref={messagesEndRef} />
+          <div className="space-y-3">
+            {renderFilterSelect('duration', filterOptions.duration)}
+            {renderFilterSelect('budget', filterOptions.budget)}
+            {renderFilterSelect('group', filterOptions.group)}
           </div>
+        </div>
+        
+        {/* Interests */}
+        <InterestSelector 
+          interests={interests}
+          onAddInterest={addInterest}
+          onRemoveInterest={removeInterest}
+          onClearAll={clearAllInterests}
+        />
 
-          {/* Spacer instead of wave divider */}
-          <div className="h-4 mb-4"></div>
+        {/* Quick Access to Events */}
+        <div className="mt-6">
+          <h3 className="text-sky-400 mb-3 font-medium">Upcoming Events</h3>
+          <div className="space-y-2">
+            {eventsData.slice(0, 3).map(event => (
+              <div key={event.id} className="bg-slate-800 bg-opacity-40 rounded-lg p-3 hover:bg-slate-700 transition-colors cursor-pointer">
+                <h4 className="font-medium text-white">{event.name}</h4>
+                <p className="text-sm text-sky-200">{event.date} • {event.location}</p>
+              </div>
+            ))}
+            <Link to="/" className="text-sm text-sky-200 hover:text-white flex items-center">
+              View all events
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+              </svg>
+            </Link>
+          </div>
+        </div>
+        
+        {/* Spacer before powered by section */}
+        <div className="py-6"></div>
+      </div>
+      
+      {/* Main Chat Area - adjusted for mobile sidebar */}
+      <div className={`flex-1 flex flex-col p-6 overflow-hidden z-10 bg-slate-800 bg-opacity-30 backdrop-blur-sm transition-all duration-300 ${sidebarVisible ? 'md:ml-0 ml-72' : 'ml-0'}`}>
+        {/* Powered by Gemini - positioned at top right */}
+        <div className="absolute top-4 right-4 z-20">
+          <div className="flex items-center space-x-2 bg-sky-800 text-white rounded-full py-2 px-4 shadow-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 18.5a6.5 6.5 0 1 0 0-13 6.5 6.5 0 0 0 0 13Z"></path>
+              <path d="M12 22v-3.5"></path>
+              <path d="M12 2v3.5"></path>
+              <path d="M4.22 19.78l2.12-2.12"></path>
+              <path d="m19.78 4.22-2.12 2.12"></path>
+              <path d="M2 12h3.5"></path>
+              <path d="M22 12h-3.5"></path>
+              <path d="M4.22 4.22l2.12 2.12"></path>
+              <path d="m19.78 19.78-2.12-2.12"></path>
+            </svg>
+            <span>Powered by Gemini 1.5</span>
+          </div>
+        </div>
+        
+        {/* Messages */}
+        <div className="relative flex-1 overflow-y-auto mb-4 space-y-6 flex flex-col items-center">
+          <div className="w-full max-w-3xl">
+            {messages.map(message => (
+              <div key={message.id} className="mb-6">
+                <ChatMessage 
+                  message={message} 
+                  aiLogo={AiLOGO} 
+                />
+              </div>
+            ))}
+            
+            {/* Loading indicator */}
+            {isLoading && (
+              <div className="mb-6">
+                <LoadingIndicator 
+                  type="chat" 
+                  aiLogo={AiLOGO} 
+                />
+              </div>
+            )}
+          </div>
           
-          {/* Message Input */}
-          <div className="flex justify-center w-full">
-            <div className="w-full max-w-3xl">
-              <ChatInput 
-                onSendMessage={handleSendMessage}
-                isLoading={isLoading}
-              />
-            </div>
+          {/* Invisible element for auto-scrolling */}
+          <div ref={messagesEndRef} />
+        </div>
+
+        {/* Spacer instead of wave divider */}
+        <div className="h-4 mb-4"></div>
+        
+        {/* Message Input */}
+        <div className="flex justify-center w-full">
+          <div className="w-full max-w-3xl">
+            <ChatInput 
+              onSendMessage={handleSendMessage}
+              isLoading={isLoading}
+            />
           </div>
         </div>
       </div>
+    </div>
   );
 };
 
