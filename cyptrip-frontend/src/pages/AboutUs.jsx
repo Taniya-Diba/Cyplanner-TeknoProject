@@ -16,7 +16,7 @@ const AboutUs = () => {
 
   const milestones = [
     {
-      year: '2018',
+      year: '2013',
       title: 'Foundation',
       description: 'Our journey began with a small team of travel enthusiasts in Cyprus.',
       extendedContent: 'It all started with three friends sharing a passion for authentic travel experiences. After a memorable road trip discovering hidden gems across Northern Cyprus, we realized there was a gap in the market for genuine local travel guidance. Our first office was a small room in Kyrenia with just two computers and a vision to transform how people explore Cyprus.',
