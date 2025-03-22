@@ -39,7 +39,6 @@ const SignUp = () => {
   };
 
   return (
-    <Layout>
     <div className="flex h-screen bg-gray-900 p-4">
       <div className="flex w-full rounded-3xl overflow-hidden">
         {/* Left side - Image */}
@@ -285,7 +284,6 @@ const SignUp = () => {
       </div>
     </div>
     </div>
-    </Layout>
   );
 };
 
