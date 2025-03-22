@@ -37,6 +37,8 @@ const AiChat = () => {
 
   // State declarations with meaningful default values
   const [messages, setMessages] = useState([]);
+  // Store timeline components separately
+  const [timelineComponents, setTimelineComponents] = useState([]);
   const [interests, setInterests] = useState([
     { id: 1, name: 'Culture' },
     { id: 2, name: 'Food' },
@@ -193,18 +195,29 @@ const AiChat = () => {
       }
       
       // Generate any timeline components based on the message content
-      const timelineComponents = generateTimelineComponents(responseText);
+      const newTimelineComponents = generateTimelineComponents(responseText);
       
       // Create and add AI response to chat
       const aiResponse = {
         id: `ai-${Date.now()}`,
         sender: 'ai',
         text: responseText,
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        timelineComponents: timelineComponents
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
       
       setMessages(prev => [...prev, aiResponse]);
+      
+      // Add timeline components as separate entries if any were generated
+      if (newTimelineComponents.length > 0) {
+        setTimelineComponents(prev => [
+          ...prev,
+          {
+            id: `timeline-${Date.now()}`,
+            parentMessageId: aiResponse.id,
+            components: newTimelineComponents
+          }
+        ]);
+      }
     } catch (error) {
       console.error("Error processing message:", error);
       
@@ -300,47 +313,63 @@ const AiChat = () => {
     return components;
   };
 
-  // Render a chat message with inline timelines
-  const renderMessage = (message) => {
-    return (
-      <div key={message.id} className="mb-6">
-        <ChatMessage 
-          message={message} 
-          aiLogo={AiLOGO} 
-        />
-        
-        {/* Render timeline components inline after the message */}
-        {message.timelineComponents && message.timelineComponents.length > 0 && (
-          <div className="mt-3 ml-12 space-y-4">
-            {message.timelineComponents.map((component, index) => {
-              if (component.type === 'milestones') {
-                return (
-                  <div key={`${message.id}-timeline-${index}`} className="bg-slate-800 bg-opacity-40 rounded-xl p-4 border border-sky-900/30">
-                    <MilestonesTimeline 
-                      title={component.title}
-                      milestones={component.data}
-                      destinationId={component.destinationId}
-                    />
-                  </div>
-                );
-              } else if (component.type === 'logistics') {
-                return (
-                  <div key={`${message.id}-logistics-${index}`} className="bg-slate-800 bg-opacity-40 rounded-xl p-4 border border-sky-900/30">
-                    <TravelLogistics
-                      title={component.title}
-                      logistics={component.data}
-                      destinationId={component.destinationId}
-                    />
-                  </div>
-                );
-              }
-              return null;
-            })}
-          </div>
-        )}
-      </div>
-    );
+  // Create an interspersed timeline of messages and timeline components
+  const createInterspersedTimeline = () => {
+    // Create a combined timeline of messages and components
+    const timeline = [...messages];
+    
+    // Insert timeline components after their related AI messages
+    timelineComponents.forEach(timelineGroup => {
+      // Find the index of the parent message
+      const parentIndex = timeline.findIndex(item => item.id === timelineGroup.parentMessageId);
+      
+      // Check if we found the parent message
+      if (parentIndex !== -1) {
+        // Insert timeline components after parent message
+        timelineGroup.components.forEach((component, i) => {
+          timeline.splice(parentIndex + 1 + i, 0, {
+            id: `${timelineGroup.id}-comp-${i}`,
+            isTimelineComponent: true,
+            component: component
+          });
+        });
+      }
+    });
+    
+    return timeline;
   };
+
+  // Render a timeline component (milestone or logistics)
+  const renderTimelineComponent = (item) => {
+    const component = item.component;
+    
+    if (component.type === 'milestones') {
+      return (
+        <div className="w-full max-w-3xl mx-auto my-4 bg-slate-800 bg-opacity-40 rounded-xl p-4 border border-sky-900/30">
+          <MilestonesTimeline 
+            title={component.title}
+            milestones={component.data}
+            destinationId={component.destinationId}
+          />
+        </div>
+      );
+    } else if (component.type === 'logistics') {
+      return (
+        <div className="w-full max-w-3xl mx-auto my-4 bg-slate-800 bg-opacity-40 rounded-xl p-4 border border-sky-900/30">
+          <TravelLogistics
+            title={component.title}
+            logistics={component.data}
+            destinationId={component.destinationId}
+          />
+        </div>
+      );
+    }
+    
+    return null;
+  };
+  
+  // Get the interspersed timeline
+  const timeline = createInterspersedTimeline();
   
   return (
     <div className="flex h-screen bg-gradient-to-br from-slate-900 to-slate-800 relative overflow-hidden">
@@ -473,8 +502,19 @@ const AiChat = () => {
           className="relative flex-1 overflow-y-auto mb-4 space-y-6 flex flex-col items-center"
         >
           <div className="w-full max-w-3xl">
-            {/* Use custom render function to display messages with inline timelines */}
-            {messages.map(message => renderMessage(message))}
+            {/* Render messages and timeline components interspersed */}
+            {timeline.map(item => (
+              <div key={item.id} className="mb-6">
+                {item.isTimelineComponent ? (
+                  renderTimelineComponent(item)
+                ) : (
+                  <ChatMessage 
+                    message={item} 
+                    aiLogo={AiLOGO} 
+                  />
+                )}
+              </div>
+            ))}
             
             {/* Loading indicator */}
             {isLoading && (
