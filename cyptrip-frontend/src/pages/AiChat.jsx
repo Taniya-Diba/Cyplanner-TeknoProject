@@ -156,7 +156,7 @@ const AiChat = () => {
       
       // Build comprehensive prompt for Gemini
       const prompt = `You are a helpful Cyprus travel assistant. Be engaging and use emoji in your responses along with markdown formatting to emphasize key points.
-      
+
       User interests: ${selectedInterests.join(', ')}
       Selected filters: Duration: ${selectedFilter.duration}, Budget: ${selectedFilter.budget}, Group: ${selectedFilter.group}
       Recent conversation: ${JSON.stringify(messages.slice(-3))}
@@ -169,15 +169,16 @@ const AiChat = () => {
       ${eventsInfo}
       
       Important: 
-      1. Include relevant emoji in your responses to make them engaging
-      2. Use markdown for headers, bullet points, and to highlight important information
-      3. Make suggestions based on user interests and filters
-      4. If suggesting places, include emoji for the type of place (beach 🏖️, restaurant 🍽️, historical site 🏛️, etc.)
-      5. Format your response in a clear, visually appealing way with markdown
-      6. When mentioning specific destinations (like Salamis Ruins, Kyrenia Castle, Varosha, or Bellapais Abbey), mention that the user can click on the name to view it on the map
-      7. When mentioning events, include the date and location
-      8. If the user asks about travel routes, mention that they can use the Explore page to plan their journey
-      9. Keep your response concise but informative`;
+      1. Continue the conversation naturally as if this is a follow-up. DO NOT use greetings like "Hello" or "Hi" again.
+      2. Include relevant emoji in your responses to make them engaging
+      3. Use markdown for headers, bullet points, and to highlight important information
+      4. Make suggestions based on user interests and filters
+      5. If suggesting places, include emoji for the type of place (beach 🏖️, restaurant 🍽️, historical site 🏛️, etc.)
+      6. Format your response in a clear, visually appealing way with markdown
+      7. When mentioning specific destinations (like Salamis Ruins, Kyrenia Castle, Varosha, or Bellapais Abbey), mention that the user can click on the name to view it on the map
+      8. When mentioning events, include the date and location
+      9. If the user asks about travel routes, mention that they can use the Explore page to plan their journey
+      10. Keep your response conversational, as if continuing a discussion already in progress`;
       
       // Call Gemini API
       const data = await callGeminiAPI({ prompt });
@@ -191,10 +192,10 @@ const AiChat = () => {
         responseText = processAIResponse(responseText, locationData, eventsData);
       }
       
-      // Create and add AI response to chat
       // Generate any timeline components based on the message content
       const timelineComponents = generateTimelineComponents(responseText);
       
+      // Create and add AI response to chat
       const aiResponse = {
         id: `ai-${Date.now()}`,
         sender: 'ai',
@@ -297,6 +298,48 @@ const AiChat = () => {
     }
     
     return components;
+  };
+
+  // Render a chat message with inline timelines
+  const renderMessage = (message) => {
+    return (
+      <div key={message.id} className="mb-6">
+        <ChatMessage 
+          message={message} 
+          aiLogo={AiLOGO} 
+        />
+        
+        {/* Render timeline components inline after the message */}
+        {message.timelineComponents && message.timelineComponents.length > 0 && (
+          <div className="mt-3 ml-12 space-y-4">
+            {message.timelineComponents.map((component, index) => {
+              if (component.type === 'milestones') {
+                return (
+                  <div key={`${message.id}-timeline-${index}`} className="bg-slate-800 bg-opacity-40 rounded-xl p-4 border border-sky-900/30">
+                    <MilestonesTimeline 
+                      title={component.title}
+                      milestones={component.data}
+                      destinationId={component.destinationId}
+                    />
+                  </div>
+                );
+              } else if (component.type === 'logistics') {
+                return (
+                  <div key={`${message.id}-logistics-${index}`} className="bg-slate-800 bg-opacity-40 rounded-xl p-4 border border-sky-900/30">
+                    <TravelLogistics
+                      title={component.title}
+                      logistics={component.data}
+                      destinationId={component.destinationId}
+                    />
+                  </div>
+                );
+              }
+              return null;
+            })}
+          </div>
+        )}
+      </div>
+    );
   };
   
   return (
@@ -430,14 +473,8 @@ const AiChat = () => {
           className="relative flex-1 overflow-y-auto mb-4 space-y-6 flex flex-col items-center"
         >
           <div className="w-full max-w-3xl">
-            {messages.map(message => (
-              <div key={message.id} className="mb-6">
-                <ChatMessage 
-                  message={message} 
-                  aiLogo={AiLOGO} 
-                />
-              </div>
-            ))}
+            {/* Use custom render function to display messages with inline timelines */}
+            {messages.map(message => renderMessage(message))}
             
             {/* Loading indicator */}
             {isLoading && (
