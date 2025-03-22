@@ -31,8 +31,14 @@ import {
  * AiChat component - Main chatbot interface with Cyprus travel assistance
  */
 const AiChat = () => {
-  // Create ref for auto-scrolling messages
+  // Create ref for message container
+  const messagesContainerRef = useRef(null);
   const messagesEndRef = useRef(null);
+  
+  // Track if user is at bottom of chat
+  const [isAtBottom, setIsAtBottom] = useState(true);
+  // Track if scroll should be forced (when user sends a message)
+  const [forceScroll, setForceScroll] = useState(false);
 
   // State declarations with meaningful default values
   const [messages, setMessages] = useState([]);
@@ -56,14 +62,60 @@ const AiChat = () => {
     setSidebarVisible(!sidebarVisible);
   };
   
-  // Auto-scroll to bottom when messages change
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  // Handle scroll events to detect if user is at bottom
+  const handleScroll = useCallback(() => {
+    if (!messagesContainerRef.current) return;
+    
+    const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
+    // Check if user is within 100px of bottom
+    const isScrolledToBottom = scrollHeight - scrollTop - clientHeight < 100;
+    setIsAtBottom(isScrolledToBottom);
+  }, []);
+  
+  // Modified scroll to bottom function - only scroll if at bottom or forced
+  const scrollToBottom = useCallback(() => {
+    if ((isAtBottom || forceScroll) && messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+      if (forceScroll) setForceScroll(false);
+    }
+  }, [isAtBottom, forceScroll]);
+
+  // Add New Button to scroll to bottom if not at bottom
+  const scrollToBottomButton = () => {
+    if (!isAtBottom && messages.length > 0) {
+      return (
+        <button 
+          onClick={() => {
+            setForceScroll(true);
+            scrollToBottom();
+          }}
+          className="fixed bottom-24 right-6 bg-sky-600 text-white rounded-full p-3 shadow-lg z-20 hover:bg-sky-700 transition-colors"
+          aria-label="Scroll to bottom"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 13l-7 7-7-7" />
+          </svg>
+        </button>
+      );
+    }
+    return null;
   };
 
+  // Set up scroll event listener
+  useEffect(() => {
+    const container = messagesContainerRef.current;
+    if (container) {
+      container.addEventListener('scroll', handleScroll);
+      return () => {
+        container.removeEventListener('scroll', handleScroll);
+      };
+    }
+  }, [handleScroll]);
+
+  // Modified effect to only scroll when appropriate
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [messages, scrollToBottom]);
   
   // Initial greeting message on component mount
   useEffect(() => {
@@ -130,6 +182,8 @@ const AiChat = () => {
     
     setMessages(prev => [...prev, newMessage]);
     setIsLoading(true);
+    // Force scroll to bottom when user sends a message
+    setForceScroll(true);
     
     // If we're on mobile, hide the sidebar to focus on the conversation
     if (window.innerWidth < 768) {
@@ -218,7 +272,7 @@ const AiChat = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [interests, messages, selectedFilter]);
+  }, [interests, messages, selectedFilter, setForceScroll]);
   
   // Filter option components
   const filterOptions = {
@@ -404,9 +458,15 @@ const AiChat = () => {
             <span>Powered by Gemini 1.5</span>
           </div>
         </div>
+
+        {/* "New Messages" floating button */}
+        {scrollToBottomButton()}
         
-        {/* Messages */}
-        <div className="relative flex-1 overflow-y-auto mb-4 space-y-6 flex flex-col items-center">
+        {/* Messages - with ref for scroll detection */}
+        <div 
+          ref={messagesContainerRef}
+          className="relative flex-1 overflow-y-auto mb-4 space-y-6 flex flex-col items-center"
+        >
           <div className="w-full max-w-3xl">
             {messages.map(message => (
               <div key={message.id} className="mb-6">
