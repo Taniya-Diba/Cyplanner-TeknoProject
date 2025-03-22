@@ -31,7 +31,8 @@ import {
  * AiChat component - Main chatbot interface with Cyprus travel assistance
  */
 const AiChat = () => {
-  // Create ref for message container - used only for reference, not scrolling
+  // Create ref for message container and end element
+  const messagesContainerRef = useRef(null);
   const messagesEndRef = useRef(null);
 
   // State declarations with meaningful default values
@@ -50,10 +51,19 @@ const AiChat = () => {
   });
   // Add state for sidebar visibility
   const [sidebarVisible, setSidebarVisible] = useState(true);
+  // Add state for button tooltip
+  const [showTooltip, setShowTooltip] = useState(false);
   
   // Toggle sidebar visibility
   const toggleSidebar = () => {
     setSidebarVisible(!sidebarVisible);
+  };
+  
+  // Function to manually scroll to bottom when button is clicked
+  const scrollToBottom = () => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
   };
   
   // Initial greeting message on component mount
@@ -315,6 +325,24 @@ const AiChat = () => {
         )}
       </button>
 
+      {/* Scroll to Bottom Button - always visible with tooltip */}
+      <div className="fixed bottom-24 right-6 z-20 group">
+        <button 
+          onClick={scrollToBottom}
+          onMouseEnter={() => setShowTooltip(true)}
+          onMouseLeave={() => setShowTooltip(false)}
+          className="bg-sky-600 hover:bg-sky-700 text-white rounded-full w-12 h-12 shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-105"
+          aria-label="Scroll to latest messages"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 13l-7 7-7-7" />
+          </svg>
+        </button>
+        <span className={`absolute bottom-full right-0 mb-2 px-2 py-1 bg-gray-900 text-white text-xs whitespace-nowrap rounded pointer-events-none transition-opacity duration-200 ${showTooltip ? 'opacity-100' : 'opacity-0'}`}>
+          View latest messages
+        </span>
+      </div>
+
       {/* Sidebar - with mobile responsive behavior */}
       <div 
         className={`${sidebarVisible ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 w-72 md:w-80 bg-slate-900 bg-opacity-70 backdrop-blur-sm p-6 flex flex-col z-10 shadow-xl overflow-y-auto fixed md:sticky top-0 h-screen transition-transform duration-300`}
@@ -396,8 +424,11 @@ const AiChat = () => {
           </div>
         </div>
         
-        {/* Messages - with no auto-scrolling */}
-        <div className="relative flex-1 overflow-y-auto mb-4 space-y-6 flex flex-col items-center">
+        {/* Messages container with ref for the scroll function */}
+        <div 
+          ref={messagesContainerRef}
+          className="relative flex-1 overflow-y-auto mb-4 space-y-6 flex flex-col items-center"
+        >
           <div className="w-full max-w-3xl">
             {messages.map(message => (
               <div key={message.id} className="mb-6">
@@ -419,7 +450,7 @@ const AiChat = () => {
             )}
           </div>
           
-          {/* Reference element at the end without scrolling behavior */}
+          {/* Invisible element for manual scrolling */}
           <div ref={messagesEndRef} />
         </div>
 
