@@ -63,109 +63,139 @@ const recommendationData = [
 const defaultImage = "https://via.placeholder.com/200x150";
 
 const ExplorePage = () => {
-const { id } = useParams();
-const [selectedPlace, setSelectedPlace] = useState(null);
-const [searchText, setSearchText] = useState("");
-const [clickedLocation, setClickedLocation] = useState(null);
-const [savedLocations, setSavedLocations] = useState([]);
-const [newTag, setNewTag] = useState("");
-const [availableTags, setAvailableTags] = useState([
-  "Historical", "Ancient", "Beach", "Nature", "Urban", 
-  "Architecture", "Museum", "Castle", "Food", "Adventure"
-]);
-// New state for toggling Google Images
-const [useGoogleImages, setUseGoogleImages] = useState(true);
+  const { id } = useParams();
+  const [showAllMarkers, setShowAllMarkers] = useState(true);
+  const [selectedPlace, setSelectedPlace] = useState(null);
+  const [searchText, setSearchText] = useState("");
+  const [clickedLocation, setClickedLocation] = useState(null);
+  const [savedLocations, setSavedLocations] = useState([]);
+  const [newTag, setNewTag] = useState("");
+  const [availableTags, setAvailableTags] = useState([
+    "Historical", "Ancient", "Beach", "Nature", "Urban", 
+    "Architecture", "Museum", "Castle", "Food", "Adventure"
+  ]);
+  const [useGoogleImages, setUseGoogleImages] = useState(true);
 
-useEffect(() => {
-  if (id) {
-    const place = recommendationData.find(place => place.id === parseInt(id));
-    if (place) {
-      setSelectedPlace(place);
-      setSearchText(place.name);
-    }
-  } else {
-    setSelectedPlace(null);
-  }
-}, [id]);
-
-// Update Google Maps loader to include Places library
-const { isLoaded } = useJsApiLoader({
-  id: 'google-map-script',
-  googleMapsApiKey: GOOGLE_API_KEY,
-  libraries: ['places']
-});
-
-const [map, setMap] = useState(null);
-
-const onLoad = useCallback(function callback(map) {
-  setMap(map);
-}, []);
-
-const onUnmount = useCallback(function callback(map) {
-  setMap(null);
-}, []);
-
-const handleMapClick = useCallback((event) => {
-  const lat = event.latLng.lat();
-  const lng = event.latLng.lng();
-  
-  // Find the closest place to where the user clicked
-  let closestPlace = null;
-  let closestDistance = Infinity;
-  
-  recommendationData.forEach(place => {
-    const distance = Math.sqrt(
-      Math.pow(place.lat - lat, 2) + Math.pow(place.lng - lng, 2)
-    );
+  // Effect to handle URL parameters and control marker visibility
+  useEffect(() => {
+    document.body.style.overflow = 'auto';
+    document.body.style.position = 'static';
     
-    if (distance < closestDistance) {
-      closestDistance = distance;
-      closestPlace = place;
+    if (id) {
+      // If we have an ID parameter, find the matching place
+      const place = recommendationData.find(place => place.id === parseInt(id));
+      if (place) {
+        setSelectedPlace(place);
+        setSearchText(place.name);
+        setShowAllMarkers(false); // Only show the selected marker
+      } else {
+        // If ID doesn't match any place, show all markers
+        setShowAllMarkers(true);
+      }
+    } else {
+      // If no ID parameter, show all markers
+      setSelectedPlace(null);
+      setShowAllMarkers(true);
     }
+  }, [id]);
+
+  // Update Google Maps loader to include Places library
+  const { isLoaded } = useJsApiLoader({
+    id: 'google-map-script',
+    googleMapsApiKey: GOOGLE_API_KEY,
+    libraries: ['places']
   });
-  
-  // If we found a place within a reasonable distance, select it
-  if (closestPlace && closestDistance < 0.05) { // Approximately 5.5km
-    setSelectedPlace(closestPlace);
-    setSearchText(closestPlace.name);
-    setClickedLocation(null);
-  } else {
-    // Create a custom location object
-    const customLocation = {
-      id: `custom-${Date.now()}`,
-      name: `Custom Location`,
-      lat,
-      lng,
-      description: `A location at coordinates Lat: ${lat.toFixed(4)}, Lng: ${lng.toFixed(4)}. Click save to add this to your collection.`,
-      isCustom: true,
-      image: defaultImage,
-      rating: 0,
-      tags: []
-    };
-    setClickedLocation({ lat, lng });
-    setSearchText(`Lat: ${lat.toFixed(4)}, Lng: ${lng.toFixed(4)}`);
-    setSelectedPlace(customLocation);
-  }
-}, []);
 
-const saveLocation = () => {
-  if (selectedPlace && !savedLocations.some(loc => loc.id === selectedPlace.id)) {
-    setSavedLocations([...savedLocations, selectedPlace]);
-  }
-};
+  const [map, setMap] = useState(null);
 
-const addTag = (locationId, tag) => {
-  if (!tag.trim()) return;
-  
-  // Add to available tags if it's new
-  if (!availableTags.includes(tag)) {
-    setAvailableTags([...availableTags, tag]);
-  }
-  
-  // Add tag to location
-  if (selectedPlace && selectedPlace.id === locationId) {
-    if (!selectedPlace.tags.includes(tag)) {
-      const updatedPlace = {...selectedPlace, tags: [...selectedPlace.tags, tag]};
+  const onLoad = useCallback(function callback(map) {
+    setMap(map);
+  }, []);
+
+  const onUnmount = useCallback(function callback(map) {
+    setMap(null);
+  }, []);
+
+  const handleMapClick = useCallback((event) => {
+    const lat = event.latLng.lat();
+    const lng = event.latLng.lng();
+    
+    // Find the closest place to where the user clicked
+    let closestPlace = null;
+    let closestDistance = Infinity;
+    
+    recommendationData.forEach(place => {
+      const distance = Math.sqrt(
+        Math.pow(place.lat - lat, 2) + Math.pow(place.lng - lng, 2)
+      );
+      
+      if (distance < closestDistance) {
+        closestDistance = distance;
+        closestPlace = place;
+      }
+    });
+    
+    // If we found a place within a reasonable distance, select it
+    if (closestPlace && closestDistance < 0.05) { // Approximately 5.5km
+      setSelectedPlace(closestPlace);
+      setSearchText(closestPlace.name);
+      setClickedLocation(null);
+    } else {
+      // Create a custom location object
+      const customLocation = {
+        id: `custom-${Date.now()}`,
+        name: `Custom Location`,
+        lat,
+        lng,
+        description: `A location at coordinates Lat: ${lat.toFixed(4)}, Lng: ${lng.toFixed(4)}. Click save to add this to your collection.`,
+        isCustom: true,
+        image: defaultImage,
+        rating: 0,
+        tags: []
+      };
+      setClickedLocation({ lat, lng });
+      setSearchText(`Lat: ${lat.toFixed(4)}, Lng: ${lng.toFixed(4)}`);
+      setSelectedPlace(customLocation);
+    }
+  }, []);
+
+  const saveLocation = () => {
+    if (selectedPlace && !savedLocations.some(loc => loc.id === selectedPlace.id)) {
+      setSavedLocations([...savedLocations, selectedPlace]);
+    }
+  };
+
+  const addTag = (locationId, tag) => {
+    if (!tag.trim()) return;
+    
+    // Add to available tags if it's new
+    if (!availableTags.includes(tag)) {
+      setAvailableTags([...availableTags, tag]);
+    }
+    
+    // Add tag to location
+    if (selectedPlace && selectedPlace.id === locationId) {
+      if (!selectedPlace.tags.includes(tag)) {
+        const updatedPlace = {...selectedPlace, tags: [...selectedPlace.tags, tag]};
+        setSelectedPlace(updatedPlace);
+        
+        // Update in saved locations if it exists there
+        if (savedLocations.some(loc => loc.id === locationId)) {
+          setSavedLocations(savedLocations.map(loc => 
+            loc.id === locationId ? updatedPlace : loc
+          ));
+        }
+      }
+    }
+    setNewTag("");
+  };
+
+  const removeTag = (locationId, tagToRemove) => {
+    if (selectedPlace && selectedPlace.id === locationId) {
+      const updatedPlace = {
+        ...selectedPlace, 
+        tags: selectedPlace.tags.filter(tag => tag !== tagToRemove)
+      };
       setSelectedPlace(updatedPlace);
       
       // Update in saved locations if it exists there
@@ -175,115 +205,117 @@ const addTag = (locationId, tag) => {
         ));
       }
     }
-  }
-  setNewTag("");
-};
+  };
 
-const removeTag = (locationId, tagToRemove) => {
-  if (selectedPlace && selectedPlace.id === locationId) {
-    const updatedPlace = {
-      ...selectedPlace, 
-      tags: selectedPlace.tags.filter(tag => tag !== tagToRemove)
-    };
-    setSelectedPlace(updatedPlace);
-    
-    // Update in saved locations if it exists there
-    if (savedLocations.some(loc => loc.id === locationId)) {
-      setSavedLocations(savedLocations.map(loc => 
-        loc.id === locationId ? updatedPlace : loc
-      ));
+  const updateRating = (locationId, rating) => {
+    if (selectedPlace && selectedPlace.id === locationId) {
+      const updatedPlace = {...selectedPlace, rating};
+      setSelectedPlace(updatedPlace);
+      
+      // Update in saved locations if it exists there
+      if (savedLocations.some(loc => loc.id === locationId)) {
+        setSavedLocations(savedLocations.map(loc => 
+          loc.id === locationId ? updatedPlace : loc
+        ));
+      }
     }
-  }
-};
+  };
 
-const updateRating = (locationId, rating) => {
-  if (selectedPlace && selectedPlace.id === locationId) {
-    const updatedPlace = {...selectedPlace, rating};
-    setSelectedPlace(updatedPlace);
-    
-    // Update in saved locations if it exists there
-    if (savedLocations.some(loc => loc.id === locationId)) {
-      setSavedLocations(savedLocations.map(loc => 
-        loc.id === locationId ? updatedPlace : loc
-      ));
+  const updateImage = (locationId, imageUrl) => {
+    if (selectedPlace && selectedPlace.id === locationId) {
+      const updatedPlace = {...selectedPlace, image: imageUrl};
+      setSelectedPlace(updatedPlace);
+      
+      // Update in saved locations if it exists there
+      if (savedLocations.some(loc => loc.id === locationId)) {
+        setSavedLocations(savedLocations.map(loc => 
+          loc.id === locationId ? updatedPlace : loc
+        ));
+      }
     }
-  }
-};
+  };
 
-const updateImage = (locationId, imageUrl) => {
-  if (selectedPlace && selectedPlace.id === locationId) {
-    const updatedPlace = {...selectedPlace, image: imageUrl};
-    setSelectedPlace(updatedPlace);
-    
-    // Update in saved locations if it exists there
-    if (savedLocations.some(loc => loc.id === locationId)) {
-      setSavedLocations(savedLocations.map(loc => 
-        loc.id === locationId ? updatedPlace : loc
-      ));
+  const removeSavedLocation = (id) => {
+    setSavedLocations(savedLocations.filter(loc => loc.id !== id));
+  };
+
+  // Handler for when a Google Place image is found
+  const handleImageFound = (imageUrl) => {
+    if (selectedPlace) {
+      updateImage(selectedPlace.id, imageUrl);
     }
-  }
-};
+  };
 
-const removeSavedLocation = (id) => {
-  setSavedLocations(savedLocations.filter(loc => loc.id !== id));
-};
+  // Default center of the map (center of Cyprus)
+  const defaultCenter = { lat: 35.1264, lng: 33.4299 };
 
-// Handler for when a Google Place image is found
-const handleImageFound = (imageUrl) => {
-  if (selectedPlace) {
-    updateImage(selectedPlace.id, imageUrl);
-  }
-};
-
-// Default center of the map (center of Cyprus)
-const defaultCenter = { lat: 35.1264, lng: 33.4299};
-
-return (
-  <Layout>
-    <div className="p-5 min-h-screen bg-gray-100">
-      <h1 className="text-3xl font-bold mb-5">Explore Cyprus</h1>
-      <div className="flex flex-col gap-5">
-        {/* Map Container */}
-        <div className="bg-white rounded-3xl p-5 shadow-md">
-          {isLoaded && (
-            <GoogleMap
-              mapContainerStyle={mapContainerStyle}
-              center={selectedPlace ? { lat: selectedPlace.lat, lng: selectedPlace.lng } : defaultCenter}
-              zoom={10}
-              onLoad={onLoad}
-              onUnmount={onUnmount}
-              onClick={handleMapClick}
-            >
-              {recommendationData.map(place => (
-                <Marker
-                  key={place.id}
-                  position={{ lat: place.lat, lng: place.lng }}
-                  onClick={() => {
-                    setSelectedPlace(place);
-                    setSearchText(place.name);
-                    setClickedLocation(null);
-                  }}
-                />
-              ))}
-              {clickedLocation && (
-                <Marker position={clickedLocation} />
-              )}
-              {savedLocations.filter(loc => loc.isCustom).map(loc => (
-                <Marker
-                  key={loc.id}
-                  position={{ lat: loc.lat, lng: loc.lng }}
-                  icon={{
-                    url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
-                  }}
-                  onClick={() => {
-                    setSelectedPlace(loc);
-                    setSearchText(loc.name);
-                  }}
-                />
-              ))}
-            </GoogleMap>
-          )}
-        </div>
+  return (
+    <Layout>
+      <div className="p-5 min-h-screen bg-gray-100">
+        <h1 className="text-3xl font-bold mb-5">Explore Cyprus</h1>
+        <div className="flex flex-col gap-5">
+          {/* Map Container */}
+          <div className="bg-white rounded-3xl p-5 shadow-md">
+            {isLoaded && (
+              <GoogleMap
+                mapContainerStyle={mapContainerStyle}
+                center={selectedPlace ? { lat: selectedPlace.lat, lng: selectedPlace.lng } : defaultCenter}
+                zoom={10}
+                onLoad={onLoad}
+                onUnmount={onUnmount}
+                onClick={handleMapClick}
+              >
+                {/* Render markers based on the showAllMarkers state */}
+                {showAllMarkers ? (
+                  // Show all recommendation markers
+                  recommendationData.map(place => (
+                    <Marker
+                      key={place.id}
+                      position={{ lat: place.lat, lng: place.lng }}
+                      onClick={() => {
+                        setSelectedPlace(place);
+                        setSearchText(place.name);
+                        setClickedLocation(null);
+                      }}
+                    />
+                  ))
+                ) : (
+                  // Show only the selected place marker
+                  selectedPlace && (
+                    <Marker
+                      key={selectedPlace.id}
+                      position={{ lat: selectedPlace.lat, lng: selectedPlace.lng }}
+                      onClick={() => {
+                        setSelectedPlace(selectedPlace);
+                        setSearchText(selectedPlace.name);
+                        setClickedLocation(null);
+                      }}
+                    />
+                  )
+                )}
+                
+                {/* Show the clicked location marker */}
+                {clickedLocation && (
+                  <Marker position={clickedLocation} />
+                )}
+                
+                {/* Show saved custom location markers with blue icon */}
+                {savedLocations.filter(loc => loc.isCustom).map(loc => (
+                  <Marker
+                    key={loc.id}
+                    position={{ lat: loc.lat, lng: loc.lng }}
+                    icon={{
+                      url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
+                    }}
+                    onClick={() => {
+                      setSelectedPlace(loc);
+                      setSearchText(loc.name);
+                    }}
+                  />
+                ))}
+              </GoogleMap>
+            )}
+          </div>
         
         {/* Google Images Toggle */}
         <div className="flex items-center mb-2">

@@ -9,9 +9,11 @@ import banner from '../assets/images/IMG/banner.jpg'
 import banner2 from '../assets/images/IMG/banner2.png'
 import comedynight from '../assets/images/IMG/comedynight.png'
 import acan from '../assets/images/IMG/acan.png'
+import { useNavigate } from "react-router-dom";
 
 const Home = () => {
   const [selectedItem, setSelectedItem] = useState(null);
+  const navigate = useNavigate();
   const [itemType, setItemType] = useState(null);
 
   const openModal = (item, type) => {
@@ -165,9 +167,12 @@ const Home = () => {
                     </ul>
                   </div>
                   <div className="flex justify-end">
-                    <button className="bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white px-6 py-3 rounded-lg transition-colors duration-300 shadow-lg transform hover:-translate-y-1 hover:scale-105">
-                      Plan Your Visit
-                    </button>
+                  <button 
+                    onClick={() => navigate(`/explore/${selectedItem.id}`)}
+                    className="bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white px-6 py-3 rounded-lg transition-colors duration-300 shadow-lg transform hover:-translate-y-1 hover:scale-105"
+                  >
+                    Plan Your Visit
+                  </button> 
                   </div>
                 </>
               )}
