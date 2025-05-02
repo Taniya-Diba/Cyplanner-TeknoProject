@@ -31,10 +31,6 @@ A modern web application to help travelers discover and plan their perfect trip 
 - **📱 Responsive Design**: Works on desktop, tablet, and mobile devices
 - **🔐 User Authentication**: Sign up and sign in functionality
 
-## 🖼️ Screenshots
-
-*Coming soon*
-
 ## 🔧 Technologies
 
 - **Frontend Framework**: React 19.0.0
