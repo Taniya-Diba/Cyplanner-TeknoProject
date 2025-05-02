@@ -14,6 +14,8 @@ A modern web application to help travelers discover and plan their perfect trip 
 - [Full Name] - [Role/Contribution] - [GitHub/LinkedIn Profile Link]
 - [Full Name] - [Role/Contribution] - [GitHub/LinkedIn Profile Link]
 - [Full Name] - [Role/Contribution] - [GitHub/LinkedIn Profile Link]
+- [Full Name] - [Role/Contribution] - [GitHub/LinkedIn Profile Link]
+- [Full Name] - [Role/Contribution] - [GitHub/LinkedIn Profile Link]
 
 ## 📋 Table of Contents
 
