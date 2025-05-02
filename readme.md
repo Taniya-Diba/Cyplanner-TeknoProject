@@ -8,7 +8,7 @@
 
 A modern web application to help travelers discover and plan their perfect trip to North Cyprus with AI-powered recommendations, interactive maps, and comprehensive travel guides.
 
-## 👥 Team Members
+## 👥 SyntaxSquad(SST25)
 
 - [Emad Ramezani] - [Project Manager / Developer] - [[GitHub](https://github.com/Emadram)/[LinkedIn Profile Link](https://www.linkedin.com/in/emad-ramezani-747287207/)]
 - [Full Name] - [Role/Contribution] - [GitHub/LinkedIn Profile Link]
