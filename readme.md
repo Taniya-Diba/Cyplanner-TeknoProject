@@ -214,7 +214,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 This project was developed for [Teknofest 2025 - TRNC] and achieved:
 
 - [Semi-finalist]
-- ⭐ [81/85]
+- ⭐ [81/100] (Threshold 85)
 
 ## 🙏 Acknowledgments
 
