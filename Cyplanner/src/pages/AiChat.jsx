@@ -73,7 +73,7 @@ const AiChat = () => {
     const initialGreeting = {
       id: 'greeting-1',
       sender: 'ai',
-      text: "Hi Emad! I'm your North Cyprus Travel Assistant. What kind of experience are you looking for?",
+      text: "Hello! I'm your North Cyprus Travel Assistant. What kind of experience are you looking for?",
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
     setMessages([initialGreeting]);
