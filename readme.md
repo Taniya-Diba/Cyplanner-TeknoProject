@@ -11,7 +11,6 @@ A modern web application to help travelers discover and plan their perfect trip 
 ## 📋 Table of Contents
 
 - [Features](#-features)
-- [Screenshots](#-screenshots)
 - [Technologies](#-technologies)
 - [Installation](#-installation)
 - [Project Structure](#-project-structure)
