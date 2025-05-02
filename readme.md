@@ -11,7 +11,7 @@ A modern web application to help travelers discover and plan their perfect trip 
 ## 👥 SyntaxSquad(SST25)
 
 - [Emad Ramezani] - [Project Manager / Developer] - [[GitHub](https://github.com/Emadram)/[LinkedIn Profile Link](https://www.linkedin.com/in/emad-ramezani-747287207/)]
-- [Full Name] - [Role/Contribution] - [GitHub/LinkedIn Profile Link]
+- [Taniya Dibaee] - [UI/UX Designer] - [[GitHub](https://github.com/Taniya-Diba)/[LinkedIn Profile Link](https://www.linkedin.com/in/taniya-dibaee)]
 - [Full Name] - [Role/Contribution] - [GitHub/LinkedIn Profile Link]
 - [Full Name] - [Role/Contribution] - [GitHub/LinkedIn Profile Link]
 - [Full Name] - [Role/Contribution] - [GitHub/LinkedIn Profile Link]
