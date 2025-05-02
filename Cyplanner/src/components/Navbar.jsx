@@ -43,9 +43,9 @@ const Navbar = () => {
         
         {/* User Profile - Replacing Authentication Buttons */}
         <div className="hidden md:flex items-center space-x-3">
-          <span className="text-sm text-white">Emad</span>
+          <span className="text-sm text-white">USER</span>
           <div className="w-8 h-8 bg-sky-500 rounded-full flex items-center justify-center text-white">
-            <span className="text-sm font-medium">ER</span>
+            <span className="text-sm font-medium">U</span>
           </div>
         </div>
         
