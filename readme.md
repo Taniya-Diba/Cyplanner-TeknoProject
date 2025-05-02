@@ -8,6 +8,13 @@
 
 A modern web application to help travelers discover and plan their perfect trip to North Cyprus with AI-powered recommendations, interactive maps, and comprehensive travel guides.
 
+## 👥 Team Members
+
+- [Emad Ramezani] - [Project Manager / Developer] - [[GitHub](https://github.com/Emadram)/[LinkedIn Profile Link](https://www.linkedin.com/in/emad-ramezani-747287207/)]
+- [Full Name] - [Role/Contribution] - [GitHub/LinkedIn Profile Link]
+- [Full Name] - [Role/Contribution] - [GitHub/LinkedIn Profile Link]
+- [Full Name] - [Role/Contribution] - [GitHub/LinkedIn Profile Link]
+
 ## 📋 Table of Contents
 
 - [Features](#-features)
@@ -17,6 +24,7 @@ A modern web application to help travelers discover and plan their perfect trip 
 - [Usage](#-usage)
 - [How to Contribute](#-how-to-contribute)
 - [License](#-license)
+- [Recognition](#-recognition)
 - [Acknowledgments](#-acknowledgments)
 
 ## ✨ Features
@@ -193,10 +201,15 @@ Before submitting a PR, please ensure:
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
+## 🏆 Recognition
+
+This project was developed for [Teknofest 2025 - TRNC] and achieved:
+
+- 🥇 [semi-finalist]
+- ⭐ [81/85]
+
 ## 🙏 Acknowledgments
 
 - Google Maps API for location mapping
 - Google's Gemini AI for powering the travel assistant
 - All contributors who have helped improve this project
-
----
