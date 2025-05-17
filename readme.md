@@ -57,7 +57,7 @@ A modern web application to help travelers discover and plan their perfect trip 
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/yourusername/cyplanner.git
+   git clone https://github.com/Emadram/Cyplanner-TeknoProject.git
    cd cyplanner
    ```
 
