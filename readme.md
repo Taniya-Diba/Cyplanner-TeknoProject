@@ -14,7 +14,7 @@ A modern web application to help travelers discover and plan their perfect trip 
 - [Taniya Dibaee] - [UI/UX Designer] - [[GitHub](https://github.com/Taniya-Diba)/[LinkedIn Profile Link](https://www.linkedin.com/in/taniya-dibaee)]
 - [Parnia sedighparvar] - [Documenter] - [[GitHub](https://github.com/parnias8)/[LinkedIn Profile Link](https://www.linkedin.com/in/parnia-sedighparvar)]
 - [Sohrab Memari] - [Full-Stack Developer] - [[GitHub](https://github.com/Sohrab098)/[LinkedIn Profile Link](https://www.linkedin.com/in/sohrab-memari/)]
-- [Mahisa Ahadi] - [Technical Writer] - [[GitHub ](https://github.com/mahisa-ahadi)/[LinkedIn Profile Link] ([https://www.linkedin.com/feed/?trk=guest_homepage-basic_nav-header-signin](https://www.linkedin.com/in/mahisa-ahadi/)]
+- [Mahisa Ahadi] - [Technical Writer] - [[GitHub ](https://github.com/mahisa-ahadi)/[LinkedIn Profile Link] (https://www.linkedin.com/in/mahisa-ahadi/)]
 - [Full Name] - [Role/Contribution] - [GitHub/LinkedIn Profile Link]
 
 ## 📋 Table of Contents
