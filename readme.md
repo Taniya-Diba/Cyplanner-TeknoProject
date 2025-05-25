@@ -15,7 +15,7 @@ A modern web application to help travelers discover and plan their perfect trip 
 - [Parnia sedighparvar] - [Documenter] - [[GitHub](https://github.com/parnias8)/[LinkedIn Profile Link](https://www.linkedin.com/in/parnia-sedighparvar)]
 - [Sohrab Memari] - [Full-Stack Developer] - [[GitHub](https://github.com/Sohrab098)/[LinkedIn Profile Link](https://www.linkedin.com/in/sohrab-memari/)]
 - [Mahisa Ahadi] - [Technical Writer] - [[GitHub ](https://github.com/mahisa-ahadi)/[LinkedIn Profile Link](https://www.linkedin.com/in/mahisa-ahadi/)]
-- [Full Name] - [Role/Contribution] - [GitHub/LinkedIn Profile Link]
+- [Reyhane Mir] - [Role/Contribution] - [[GitHub](https://github.com/reyhanemirsharghi)]/[LinkedIn Profile Link](https://www.linkedin.com/in/reyhane-mir-8b86a929a/)]
 
 ## 📋 Table of Contents
 
